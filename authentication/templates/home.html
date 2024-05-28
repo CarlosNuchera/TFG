@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-md-8 offset-md-2">
+            <div class="jumbotron">
+                <h1 class="display-4 text-center mb-4">¡Bienvenido a nuestra aplicación!</h1>
+                <p class="lead text-center">Gracias a nuestra aplicación, puedes analizar una amplia variedad de datos. Aseguramos datos fiables procedentes de Esios, Mibgas o Ree.</p>
+                <hr class="my-4">
+                <h5 class="text-center">Nuestros análisis incluyen:</h5>
+                <ul class="list-group text-center">
+                    <li class="list-group-item">Autocorrelación</li>
+                    <li class="list-group-item">Gráficas base</li>
+                    <li class="list-group-item">Detección de outliers</li>
+                    <li class="list-group-item">Descomposición de series temporales</li>
+                </ul>
+                {% if request.user.is_authenticated %}
+                <p class="lead mt-4 text-center">
+                    ¡Bienvenido/a de nuevo, {{ user.username }}!
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

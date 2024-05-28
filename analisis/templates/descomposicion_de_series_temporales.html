@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form id="descomposicion_de_series_temporales_form" method="POST" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" name="action" value="calcular">Visualizar</button>
+    <button type="button" onclick="guardarDescomposiciones()">Guardar</button>
+    <input type="hidden" id="action_input" name="action" value="">
+</form>
+
+{% if datos_fig %}
+    <div id="grafica_descomposicion">
+        {{ datos_fig | safe }}
+    </div>
+{% endif %}
+{% if tendencia_fig %}
+    <div id="grafica_descomposicion">
+        {{ tendencia_fig | safe }}
+    </div>
+{% endif %}
+{% if estacionalidad_fig %}
+    <div id="grafica_descomposicion">
+        {{ estacionalidad_fig | safe }}
+    </div>
+{% endif %}
+{% if residuos_fig %}
+    <div id="grafica_descomposicion">
+        {{ residuos_fig | safe }}
+    </div>
+{% endif %}
+
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-warning">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if descomposicion_de_serie_temporal.exists %}
+<a href="{% url 'resultados_descomposicion_de_series_temporales' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
+{% endif %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    function guardarDescomposiciones() {
+        document.getElementById('action_input').value = 'guardar';
+        document.getElementById('descomposicion_de_series_temporales_form').submit();
+    }
+</script>
+<script>
+    setTimeout(function() {
+        var messages = document.querySelectorAll('.alert');
+        messages.forEach(function(message) {
+            message.style.display = 'none';
+        });
+    }, 3000);
+</script>
+{% endblock %}

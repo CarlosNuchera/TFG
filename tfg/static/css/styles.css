@@ -1,0 +1,143 @@
+.error-message {
+    color: red;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.cuadro {
+    position: relative;
+    width: 500px; /* Ancho deseado del cuadro */
+}
+
+.cuadro a {
+    text-decoration: none; /* Elimina el subrayado del enlace */
+    color: black; /* Color del texto por defecto */
+}
+
+.cuadro a:hover {
+    color: gray; /* Cambia el color del texto al pasar el cursor */
+}
+
+.titulo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    text-align: center;
+    width: 100%;
+    margin: 0;
+    padding: 5px;
+    background-color: white; /* Fondo blanco para que el texto sea legible */
+}
+
+.imagen img {
+    display: block;
+    width: 100%; /* Ancho de la imagen para que llene el contenedor */
+    height: auto;
+    transform: scale(.75); /* Escala la imagen cinco veces más grande */
+}
+
+ul, li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+li strong {
+    font-weight: bold;
+}
+
+/* Estilos específicos para la lista anidada */
+ul ul {
+    margin-left: 20px; /* Indentación para las listas anidadas */
+}
+
+/* Estilos generales para el texto */
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos específicos para el enlace */
+a {
+    text-decoration: none;
+    color: #007bff; /* Color azul para los enlaces */
+}
+
+a:hover {
+    color: #0056b3; /* Cambia el color del enlace al pasar el cursor */
+}
+
+.site-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centra los elementos del formulario */
+}
+
+.site-form h4 {
+    margin-bottom: 20px;
+}
+
+.site-form label {
+    display: block;
+    text-align: left; /* Alinea el texto del label a la izquierda */
+    margin-bottom: 10px;
+}
+
+/* Ajusta el tamaño del input para el nombre */
+.site-form input[type="text"] {
+    width: calc(50% - 5px); /* Ancho del 50% menos el espacio */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+/* Ajusta el ancho del input para la descripción */
+.site-form textarea {
+    width: calc(100% - 16px); /* Ancho completo menos el espacio */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+/* Estilos para el selector */
+.site-form select {
+    width: 100%;
+    padding: 8px;
+    border: none; /* Elimina el borde del select */
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    appearance: none; /* Oculta el cuadro de selección predeterminado */
+    background-color: #e9f5e7; /* Color de fondo verde */
+}
+
+/* Estilos para las opciones seleccionadas */
+.site-form select option:checked {
+    background-color: green; /* Color de fondo verde para las opciones seleccionadas */
+    color: white; /* Color del texto blanco para las opciones seleccionadas */
+}
+
+.enlace-resultados {
+    color: #27963aad; /* Color azul por defecto */
+    text-decoration: none; /* Elimina el subrayado */
+}
+
+.enlace-resultados:hover,
+.enlace-resultados:active {
+    color: green; /* Cambia el color a verde cuando se activa el enlace */
+}
+
+.alert.success {
+    color: green; /* Cambia este color al que desees */
+    /* Otros estilos CSS según sea necesario */
+}

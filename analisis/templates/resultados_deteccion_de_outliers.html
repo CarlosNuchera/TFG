@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    
+    <br>
+    <h2>Resultados para el análisis sobre detección de Outliers<strong>{{ analisis.id }} {{ analisis.nombre }}</strong>:</h2>
+    <br>
+    {% if datos.exists %}
+        <form method="post" id="delete-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger mb-2" id="delete-selected">Eliminar seleccionados</button>
+            <button type="button" class="btn btn-secondary mb-2" id="select-all">Seleccionar todo</button>
+            <button type="button" class="btn btn-primary mb-2" id="download-csv">Descargar CSV</button>
+            <table class="table table-info">
+                <thead class="thead-dark">
+                <tr>
+                    <th><input type="checkbox" id="select-all-checkbox"></th>
+                    <th>Título</th>
+                    <th>Dato analizado</th>
+                    <th>Nombre del dato</th>
+                    <th>Método de cálculo empleado</th>
+                    <th>Umbral</th>
+                    <th>Fecha</th>
+                    <th>Valor</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for dato in datos %}
+                    <tr class="table-light">
+                        <td><input type="checkbox" name="dato_ids" value="{{ dato.deteccion_de_outlier.id }}"></td>
+                        <td>{{ dato.deteccion_de_outlier.titulo }}</td>
+                        <td>{{ dato.deteccion_de_outlier.nombre }}</td>
+                        <td>{{ dato.nombre_dato }}</td>
+                        <td>{{ dato.deteccion_de_outlier.metodo_calculo }}</td>
+                        <td>{{ dato.deteccion_de_outlier.umbral }}</td>
+                        <td>{{ dato.fecha_dato }}</td>
+                        <td>{{ dato.valor }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    {% else %}
+        <p>No hay autocorrelaciones agregadas</p>
+    {% endif %}
+    <script>
+        document.getElementById('select-all').addEventListener('click', function () {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = true;
+            });
+        });
+
+        document.getElementById('select-all-checkbox').addEventListener('change', function () {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = this.checked;
+            }, this);
+        });
+
+        document.getElementById('download-csv').addEventListener('click', function () {
+            var csv = [];
+            var rows = document.querySelectorAll('table tr');
+            rows.forEach(function (row) {
+                var csvRow = [];
+                var cells = row.querySelectorAll('td, th');
+                cells.forEach(function (cell) {
+                    csvRow.push(cell.textContent.trim());
+                });
+                csv.push(csvRow.join(','));
+            });
+            var csvContent = 'data:text/csv;charset=utf-8,' + csv.join('\n');
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'datos_deteccion_de_outliers.csv');
+            document.body.appendChild(link);
+            link.click();
+        });
+    </script>
+
+
+{% endblock %}

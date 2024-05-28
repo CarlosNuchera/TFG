@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<form id="autocorrelacion_form" method="GET" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" name="action" value="calcular">Visualizar</button>
+    <button type="button" onclick="guardarAutocorrelacion()">Guardar</button>
+    <input type="hidden" id="action_input" name="action" value="">
+</form>
+
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-warning">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div id="plotly_chart">{{ plot_div|safe }}</div>
+<div id="autocorrelation_chart">{{ autocorrelation_plot_div|safe }}</div>
+{% if autocorrelaciones.exists %}
+<a href="{% url 'resultados_autocorrelacion' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
+{% endif %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    var plot_div = document.getElementById('plotly_chart');
+    var plot_data = JSON.parse("{{ plot_div|safe|escapejs }}");
+    Plotly.newPlot(plot_div, plot_data, {}, {responsive: true});
+
+    var autocorrelation_chart = document.getElementById('autocorrelation_chart');
+    var autocorrelation_plot_data = JSON.parse("{{ autocorrelation_chart|safe|escapejs }}");
+    Plotly.newPlot(autocorrelation_chart, autocorrelation_plot_data, {}, {responsive: true});
+
+    function guardarAutocorrelacion() {
+        document.getElementById('action_input').value = 'guardar';
+        document.getElementById('autocorrelacion_form').submit();
+    }
+</script>
+<script>
+    setTimeout(function() {
+        var messages = document.querySelectorAll('.alert');
+        messages.forEach(function(message) {
+            message.style.display = 'none';
+        });
+    }, 3000);
+</script>
+{% endblock %}

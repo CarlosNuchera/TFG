@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+<h3>Análisis de {{ request.user.username|upper }}:</h3>
+{% if tipos_dato_por_analisis %}
+    <form method="post" id="delete-form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger mb-2" id="delete-selected">Eliminar seleccionados</button>
+        <table class="table table-info">
+            <thead class="thead-dark">
+                <tr>
+                    <th></th>
+                    <th>Nombre</th>
+                    <th>Fecha de Creación</th>
+                    <th>Tipo de Datos Utilizados</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for analisis, tipos_dato in tipos_dato_por_analisis.items %}
+                    <tr class="table-light">
+                        <td><input type="checkbox" name="analisis_uuids" value="{{ analisis.uuid }}"></td>
+                        <td>
+                            {% if analisis.estado == 'Terminado' %}
+                            <a href="{% url 'resultados' analisis.uuid %}" class="enlace-resultados">{{ analisis.nombre }}</a>
+                            {% else %}
+                                {{ analisis.nombre }}
+                            {% endif %}
+                        </td>
+                        <td>{{ analisis.fecha_creacion }}</td>
+                        <td>
+                            {% for tipo_dato in tipos_dato %}
+                                {{ tipo_dato }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ analisis.estado }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+{% else %}
+    <p>No tienes análisis realizados.</p>
+{% endif %}
+<script>
+    setTimeout(function(){
+        window.location.reload(1);
+    }, 10000);
+</script>
+
+{% endblock %}

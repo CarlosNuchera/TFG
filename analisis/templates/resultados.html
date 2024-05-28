@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+{% if analisis %}
+    <h4>Detalles del Análisis</h4>
+    <ul>
+        <li><strong>Nombre:</strong> {{ analisis.nombre }}</li>
+        <li><strong>Descripción:</strong> {{ analisis.descripcion }}</li>
+        <li><strong>Frecuencia:</strong> {{ analisis.get_frecuencia_display }}</li>
+        <li><strong>Fecha de Creación:</strong> {{ analisis.fecha_creacion }}</li>
+        <li><strong>Usuario:</strong> {{ analisis.usuario.username }}</li>
+        <li><strong>Tipos de Datos Utilizados:</strong>
+            <ul>
+                {% for tipo_dato in tipos_dato_unicos %}
+                    <li>{{ tipo_dato }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+    <div class="cuadro">
+        <a href="{% url 'autocorrelacion' analisis_uuid  %}">
+            <p class="titulo">Autocorrelación</p>
+            <div class="imagen">
+                <img src="{% static 'images/autocorrelacion.png' %}" alt="Autocorrelacion">
+            </div>
+        </a>
+    </div>
+    <div class="cuadro">
+        <a href="{% url 'deteccion_de_outliers' analisis_uuid  %}">
+            <p class="titulo">Deteccion de outliers</p>
+            <div class="imagen">
+                <img src="{% static 'images/outliers.png' %}" alt="DeteccionDeOutliers">
+            </div>
+        </a>
+    </div>
+    <div class="cuadro">
+        <a href="{% url 'descomposicion_de_series_temporales' analisis_uuid  %}">
+            <p class="titulo">Descomposición de series temporales</p>
+            <div class="imagen">
+                <img src="{% static 'images/descomposicion.png' %}" alt="DescomposicionDeSeriesTemporales">
+            </div>
+        </a>
+    </div>
+    <br>
+    <h5>Descargue los datos:</h5>
+    <a href="{% url 'descargar_csv' analisis_uuid  %}" class="btn btn-primary">CSV</a>
+{% else %}
+    <p>No se encontró ningún análisis.</p>
+{% endif %}
+
+{% endblock %}

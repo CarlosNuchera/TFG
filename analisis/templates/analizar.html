@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            {% if request.user.is_authenticated %}
+            <hr>
+                {% if error_message %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error_message }}
+                    </div>
+                {% else %}
+                <hr>
+                <h4>Rellene el formulario de análisis</h4>
+                <hr>
+                    <form class="site-form" action="{% url 'analizar' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Analizar</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

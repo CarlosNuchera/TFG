@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<form id="deteccion_de_outliers_form" method="POST" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" name="action" value="calcular">Visualizar</button>
+    <button type="button" onclick="guardarOutliers()">Guardar</button>
+    <input type="hidden" id="action_input" name="action" value="">
+</form>
+
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-warning">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div id="plotly_chart">{% if datos_fig %}{{ datos_fig|safe }}{% endif %}</div>
+{% if deteccion_de_outlier.exists %}
+<a href="{% url 'resultados_deteccion_de_outliers' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
+{% endif %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    function guardarOutliers() {
+        document.getElementById('action_input').value = 'guardar';
+        document.getElementById('deteccion_de_outliers_form').submit();
+    }
+</script>
+<script>
+    setTimeout(function() {
+        var messages = document.querySelectorAll('.alert');
+        messages.forEach(function(message) {
+            message.style.display = 'none';
+        });
+    }, 3000);
+</script>
+{% endblock %}

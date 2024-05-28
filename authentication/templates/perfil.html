@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Perfil de {{ usuario.username }}</h1>
+<ul>
+    <li>Nombre: {{ usuario.first_name }}</li>
+    <li>Apellidos: {{ usuario.last_name }}</li>
+    <li>Email: {{ usuario.email }}</li>
+</ul>
+
+<h2>Cambiar Contraseña</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Cambiar contraseña</button>
+</form>
+
+<h2>Eliminar Cuenta</h2>
+<form action="{% url 'eliminar_cuenta' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Eliminar mi cuenta</button>
+</form>
+{% endblock %}

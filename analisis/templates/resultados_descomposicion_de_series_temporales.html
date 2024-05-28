@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+    <h2>Resultados para el análisis sobre descomposición de Series Temporales<strong>{{ analisis.id }} {{ analisis.nombre }}</strong>:</h2>
+    <br>
+    {% if datos.exists %}
+        <form method="post" id="delete-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger mb-2" id="delete-selected">Eliminar seleccionados</button>
+            <button type="button" class="btn btn-secondary mb-2" id="select-all">Seleccionar todo</button>
+            <button type="button" class="btn btn-primary mb-2" id="download-csv">Descargar CSV</button>
+            <table class="table table-info">
+                <thead class="thead-dark">
+                <tr>
+                    <th><input type="checkbox" id="select-all-checkbox"></th>
+                    <th>Título</th>
+                    <th>Dato analizado</th>
+                    <th>Nombre del dato</th>
+                    <th>Método de cálculo empleado</th>
+                    <th>Fecha</th>
+                    <th>Valor</th>
+                    <th>Tendencia</th>
+                    <th>Estacionalidad</th>
+                    <th>Residuo</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for dato in datos %}
+                    <tr class="table-light">
+                        <td><input type="checkbox" name="dato_ids" value="{{ dato.descomposicion.id }}"></td>
+                        <td>{{ dato.descomposicion.titulo }}</td>
+                        <td>{{ dato.descomposicion.nombre }}</td>
+                        <td>{{ dato.nombre_dato }}</td>
+                        <td>{{ dato.descomposicion.metodo_calculo }}</td>
+                        <td>{{ dato.fecha_dato }}</td>
+                        <td>{{ dato.valor_dato }}</td>
+                        <td>{{ dato.tendencia }}</td>
+                        <td>{{ dato.estacionalidad }}</td>
+                        <td>{{ dato.residuo }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    {% else %}
+        <p>No hay descomposiciones agregadas</p>
+    {% endif %}
+    <script>
+        document.getElementById('select-all').addEventListener('click', function () {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = true;
+            });
+        });
+
+        document.getElementById('select-all-checkbox').addEventListener('change', function () {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = this.checked;
+            }, this);
+        });
+
+        document.getElementById('download-csv').addEventListener('click', function () {
+            var csv = [];
+            var rows = document.querySelectorAll('table tr');
+            rows.forEach(function (row) {
+                var csvRow = [];
+                var cells = row.querySelectorAll('td, th');
+                cells.forEach(function (cell) {
+                    csvRow.push(cell.textContent.trim());
+                });
+                csv.push(csvRow.join(','));
+            });
+            var csvContent = 'data:text/csv;charset=utf-8,' + csv.join('\n');
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', 'datos_descomposicion_de_series_temporales.csv');
+            document.body.appendChild(link);
+            link.click();
+        });
+    </script>
+
+{% endblock %}

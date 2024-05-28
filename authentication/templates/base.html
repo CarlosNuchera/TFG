@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>Aplicación</title>
+    {% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}" />
+    <style>
+        /* Estilos personalizados para alinear los elementos a la derecha */
+        .navbar-nav.right-align {
+            margin-left: auto;
+        }
+    </style>
+    {% endblock %}
+</head>
+<body>
+    <div class="container">
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+              <a class="navbar-brand" href={% url 'home' %}>ESIOS</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href={% url 'home' %}>Inicio</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href={% url 'contacto' %}>Contactar</a>
+                  </li>
+                  {% if request.user.is_authenticated %}
+                  <li class="nav-item">
+                    <a class="nav-link" href={% url 'analizar' %}>Analizar</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href={% url 'mis_analisis' %}>Mis Análisis</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/api/analisis/">API</a>
+                  </li>
+                  {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav mb-2 mb-lg-0 right-align">
+                  {% if request.user.is_authenticated %}
+                  <li class="nav-item">
+                    <a class="nav-link" href={% url 'perfil' %}>Perfil</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href={% url 'exit' %}>Salir</a>
+                  </li>
+                  {% else %}
+                  <li class="nav-item">
+                    <a class="nav-link" href={% url 'login' %}>Ingresar</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href={% url 'register' %}>Registrarse</a>
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+          </nav>
+
+    {% block content %}{% endblock %}
+
+    </div>
+</body>
+</html>
