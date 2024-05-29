@@ -130,8 +130,8 @@ def calcular_autocorrelacion(request, analisis_uuid):
     consumos_por_nombre, fechas_consumo_por_nombre = extraer_datos(datos_consumo, 'consumo')
     porcentajes_por_nombre, fechas_porcentaje_por_nombre = extraer_datos(datos_porcentaje, 'porcentaje')
 
-    if request.method == 'GET':
-        form = AutocorrelacionForm(frecuencia=frecuencia_analisis, mostrar_opciones=mostrar_datos, data=request.GET, analisis_uuid=analisis_uuid)
+    if request.method == 'POST':
+        form = AutocorrelacionForm(frecuencia=frecuencia_analisis, mostrar_opciones=mostrar_datos, data=request.POST, analisis_uuid=analisis_uuid)
         if form.is_valid():
             lag = form.cleaned_data['lag']
             tipo = form.cleaned_data['tipo']
@@ -180,19 +180,19 @@ def calcular_autocorrelacion(request, analisis_uuid):
                 return datos_fig, autocorrelation_fig, autocorrelaciones_por_nombre
 
             if mostrar_datos == 'precio':
-                datos_fig, autocorrelation_fig, autocorrelaciones_por_nombre_precio = create_autocorrelation_fig(precios_por_nombre, fechas_precio_por_nombre, 'precio')
+                datos_fig, autocorrelation_fig, autocorrelaciones_por_nombre_tipo_dato = create_autocorrelation_fig(precios_por_nombre, fechas_precio_por_nombre, 'precio')
                 plot_div = datos_fig.to_html(full_html=False)
                 autocorrelation_plot_div = autocorrelation_fig.to_html(full_html=False)
             elif mostrar_datos == 'consumo':
-                datos_fig, autocorrelation_fig, autocorrelaciones_por_nombre_consumo = create_autocorrelation_fig(consumos_por_nombre, fechas_consumo_por_nombre, 'consumo')
+                datos_fig, autocorrelation_fig, autocorrelaciones_por_nombre_tipo_dato = create_autocorrelation_fig(consumos_por_nombre, fechas_consumo_por_nombre, 'consumo')
                 plot_div = datos_fig.to_html(full_html=False)
                 autocorrelation_plot_div = autocorrelation_fig.to_html(full_html=False)
             elif mostrar_datos == 'porcentaje':
-                datos_fig, autocorrelation_fig, autocorrelaciones_por_nombre_porcentaje = create_autocorrelation_fig(porcentajes_por_nombre, fechas_porcentaje_por_nombre, 'porcentaje')
+                datos_fig, autocorrelation_fig, autocorrelaciones_por_nombre_tipo_dato = create_autocorrelation_fig(porcentajes_por_nombre, fechas_porcentaje_por_nombre, 'porcentaje')
                 plot_div = datos_fig.to_html(full_html=False)
                 autocorrelation_plot_div = autocorrelation_fig.to_html(full_html=False)
 
-            action = request.GET.get('action')
+            action = request.POST.get('action')
             if action == 'guardar':
                 if Autocorrelacion.objects.filter(titulo=titulo, analisis=analisis).exists():
                     messages.warning(request, "Ya tiene una autocorrelación con el mismo título.")
@@ -206,7 +206,7 @@ def calcular_autocorrelacion(request, analisis_uuid):
                         titulo=titulo, nombre=mostrar_datos
                     )
                     messages.success(request, "Autocorrelación añadida correctamente")
-                    for nombre_dato, autocorr in autocorrelaciones_por_nombre_precio.items():
+                    for nombre_dato, autocorr in autocorrelaciones_por_nombre_tipo_dato.items():
                         for i in range(lag):
                             valor_autocorr = autocorr[0][i + 1]
                             ResulatadosAutocorrelacion.objects.create(

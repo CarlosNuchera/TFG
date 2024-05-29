@@ -1,7 +1,6 @@
 from django import forms
 from .models import Analisis, Autocorrelacion, DeteccionDeOutliers, DescomposicionDeSeriesTemporales
 from esios.models import Datos
-from datetime import date
 
 class AnalisisForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -39,10 +38,22 @@ class AutocorrelacionForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         max_length=50
     )
-    lag = forms.IntegerField(min_value=1)
-    tipo = forms.ChoiceField(choices=Autocorrelacion.TIPO_CHOICES)
-    metodo = forms.ChoiceField(choices=Autocorrelacion.METODO_CHOICES)
-    visualizacion = forms.ChoiceField(choices=Autocorrelacion.ESTILOS_CHOICES)
+    lag = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+    tipo = forms.ChoiceField(
+        choices=Autocorrelacion.TIPO_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    metodo = forms.ChoiceField(
+        choices=Autocorrelacion.METODO_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    visualizacion = forms.ChoiceField(
+        choices=Autocorrelacion.ESTILOS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
     mostrar_datos = forms.ChoiceField(
         widget=forms.Select(attrs={'class': 'form-control'}),
         choices=[],
@@ -50,17 +61,22 @@ class AutocorrelacionForm(forms.Form):
     )
     def __init__(self, frecuencia, mostrar_opciones, analisis_uuid, *args, **kwargs):
         super(AutocorrelacionForm, self).__init__(*args, **kwargs)
+        print(f"Frecuencia recibida: {frecuencia}")
 
-        if frecuencia == 'dias':
-            self.fields['lag'].max_value = 100
-        elif frecuencia == 'horas':
-            self.fields['lag'].max_value = 2400
-        elif frecuencia == '10 minutos':
-            self.fields['lag'].max_value = 14400
-        elif frecuencia == 'meses':
-            self.fields['lag'].max_value = 10
-        elif frecuencia == 'años':
-            self.fields['lag'].max_value = 5
+        max_values = {
+            'dias': 100,
+            'horas': 2400,
+            '10 minutos': 14400,
+            'meses': 10,
+            'años': 5
+        }
+
+        if frecuencia in max_values:
+            self.fields['lag'].widget.attrs['max'] = max_values[frecuencia]
+            self.fields['lag'].max_value = max_values[frecuencia]
+        else:
+            self.fields['lag'].widget.attrs.pop('max', None)
+            self.fields['lag'].max_value = None
 
         if mostrar_opciones:
             self.fields['mostrar_datos'].choices = [(op, op.capitalize()) for op in mostrar_opciones]
@@ -73,9 +89,19 @@ class DeteccionDeOutliersForm(forms.Form):
         max_length=50,
         required=True
     )
-    umbral = forms.IntegerField(min_value=1, required=True)
-    metodo = forms.ChoiceField(choices=DeteccionDeOutliers.METODO_CHOICES)
-    visualizacion = forms.ChoiceField(choices=DeteccionDeOutliers.ESTILOS_CHOICES)
+    umbral = forms.IntegerField(
+        min_value=1,
+        required=True,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+    metodo = forms.ChoiceField(
+        choices=DeteccionDeOutliers.METODO_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    visualizacion = forms.ChoiceField(
+        choices=DeteccionDeOutliers.ESTILOS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
     mostrar_datos = forms.ChoiceField(
         widget=forms.Select(attrs={'class': 'form-control'}),
         choices=[],
@@ -83,30 +109,26 @@ class DeteccionDeOutliersForm(forms.Form):
     )
     def __init__(self, frecuencia, mostrar_opciones, analisis_uuid, *args, **kwargs):
         super(DeteccionDeOutliersForm, self).__init__(*args, **kwargs)
+        
+        print(f"Frecuencia recibida: {frecuencia}")
+
+        max_values = {
+            'dias': 10,
+            'horas': 60,
+            '10 minutos': 360,
+            'meses': 2,
+            'años': 1
+        }
+
+        if frecuencia in max_values:
+            self.fields['umbral'].widget.attrs['max'] = max_values[frecuencia]
+            self.fields['umbral'].max_value = max_values[frecuencia]
+        else:
+            self.fields['umbral'].widget.attrs.pop('max', None)
+            self.fields['umbral'].max_value = None
+
         if mostrar_opciones:
             self.fields['mostrar_datos'].choices = [(op, op.capitalize()) for op in mostrar_opciones]
-    #Esto funcionaría:
-    '''def __init__(self, frecuencia, mostrar_opciones, analisis_uuid, *args, **kwargs):
-        super(DeteccionDeOutliersForm, self).__init__(*args, **kwargs)
-        if mostrar_opciones:
-            self.fields['mostrar_datos'].choices = [(op, op.capitalize()) for op in mostrar_opciones]
-        self.frecuencia=frecuencia
-    def clean_umbral(self):
-        umbral = self.cleaned_data.get('umbral')
-        
-        # Validar el umbral en función de la frecuencia
-        if self.frecuencia == 'dias' and umbral > 100:
-            raise forms.ValidationError("El umbral debe ser menor o igual a 100 para la frecuencia de días.")
-        elif self.frecuencia == 'horas' and umbral > 2400:
-            raise forms.ValidationError("El umbral debe ser menor o igual a 2400 para la frecuencia de horas.")
-        elif self.frecuencia == '10 minutos' and umbral > 14400:
-            raise forms.ValidationError("El umbral debe ser menor o igual a 14400 para la frecuencia de 10 minutos.")
-        elif self.frecuencia == 'meses' and umbral > 10:
-            raise forms.ValidationError("El umbral debe ser menor o igual a 10 para la frecuencia de meses.")
-        elif self.frecuencia == 'años' and umbral > 5:
-            raise forms.ValidationError("El umbral debe ser menor o igual a 5 para la frecuencia de años.")
-        
-        return umbral'''
 
 class DescomposicionDeSeriesTemporalesForm(forms.Form):
     titulo = forms.CharField(
@@ -116,11 +138,13 @@ class DescomposicionDeSeriesTemporalesForm(forms.Form):
     )
     metodo = forms.ChoiceField(
         label="Método",
-        choices=DescomposicionDeSeriesTemporales.METODO_CHOICES
+        choices=DescomposicionDeSeriesTemporales.METODO_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
     visualizacion = forms.ChoiceField(
         label="Visualización",
-        choices=DescomposicionDeSeriesTemporales.ESTILOS_CHOICES
+        choices=DescomposicionDeSeriesTemporales.ESTILOS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
     mostrar_datos = forms.ChoiceField(
         label="Datos a Mostrar",

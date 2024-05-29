@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<form id="autocorrelacion_form" method="GET" action="">
+<form id="autocorrelacion_form" method="POST" action="">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" name="action" value="calcular">Visualizar</button>
