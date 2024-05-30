@@ -18,33 +18,37 @@
             </ul>
         </li>
     </ul>
-    <div class="cuadro">
-        <a href="{% url 'autocorrelacion' analisis_uuid  %}">
-            <p class="titulo">Autocorrelación</p>
-            <div class="imagen">
-                <img src="{% static 'images/autocorrelacion.png' %}" alt="Autocorrelacion">
-            </div>
-        </a>
-    </div>
-    <div class="cuadro">
-        <a href="{% url 'deteccion_de_outliers' analisis_uuid  %}">
-            <p class="titulo">Deteccion de outliers</p>
-            <div class="imagen">
-                <img src="{% static 'images/outliers.png' %}" alt="DeteccionDeOutliers">
-            </div>
-        </a>
-    </div>
-    <div class="cuadro">
-        <a href="{% url 'descomposicion_de_series_temporales' analisis_uuid  %}">
-            <p class="titulo">Descomposición de series temporales</p>
-            <div class="imagen">
-                <img src="{% static 'images/descomposicion.png' %}" alt="DescomposicionDeSeriesTemporales">
-            </div>
-        </a>
+    <div class="cuadros-container">
+        <div class="cuadro">
+            <a href="{% url 'autocorrelacion' analisis_uuid  %}">
+                <p class="titulo">Autocorrelación</p>
+                <div class="imagen">
+                    <img src="{% static 'images/autocorrelacion.png' %}" alt="Autocorrelacion">
+                </div>
+            </a>
+        </div>
+        <div class="cuadro">
+            <a href="{% url 'deteccion_de_outliers' analisis_uuid  %}">
+                <p class="titulo">Deteccion de outliers</p>
+                <div class="imagen">
+                    <img src="{% static 'images/outliers.png' %}" alt="DeteccionDeOutliers">
+                </div>
+            </a>
+        </div>
+        <div class="cuadro">
+            <a href="{% url 'descomposicion_de_series_temporales' analisis_uuid  %}">
+                <p class="titulo">Descomposición de series temporales</p>
+                <div class="imagen">
+                    <img src="{% static 'images/descomposicion.png' %}" alt="DescomposicionDeSeriesTemporales">
+                </div>
+            </a>
+        </div>
     </div>
     <br>
     <h5>Descargue los datos:</h5>
     <a href="{% url 'descargar_csv' analisis_uuid  %}" class="btn btn-primary">CSV</a>
+    <h5>Previsualizar PDF:</h5>
+    <a href="{% url 'previsualizacion_pdf' analisis_uuid  %}" class="btn btn-primary">PDF</a>
 {% else %}
     <p>No se encontró ningún análisis.</p>
 {% endif %}

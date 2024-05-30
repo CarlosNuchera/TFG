@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .forms import AnalisisForm, AutocorrelacionForm, DeteccionDeOutliersForm, DescomposicionDeSeriesTemporalesForm
-from .models import Analisis, Autocorrelacion, DatosPreprocesados, ResulatadosAutocorrelacion, DeteccionDeOutliers, ResulatadosDeteccionDeOutliers, DescomposicionDeSeriesTemporales, ResultadosDescomposicionDeSeriesTemporales
+from .forms import *
+from .models import *
 from django.contrib.auth.decorators import login_required
 import pandas as pd
 import statsmodels.api as sm
@@ -18,6 +18,8 @@ from django.contrib import messages
 import numpy as np
 from scipy.stats import zscore
 from datetime import datetime
+from xhtml2pdf import pisa
+from django.template.loader import render_to_string
 
 
 @login_required(login_url="accounts/login/")
@@ -102,6 +104,8 @@ def calcular_autocorrelacion(request, analisis_uuid):
     datos_consumo = datos.filter(consumo__isnull=False)
     datos_porcentaje = datos.filter(porcentaje__isnull=False)
     autocorrelaciones = Autocorrelacion.objects.filter(analisis=analisis)
+    graficas_autocorrelaciones = Grafica.objects.filter(analisis=analisis, tipo_dato="Autocorrelacion")
+    numero_graficas_por_usuario = Grafica.objects.filter(analisis=analisis, tipo_dato="Autocorrelacion").count()
 
     diccionario_datos = {
         columna: list(datos.values_list(columna, flat=True))
@@ -192,8 +196,24 @@ def calcular_autocorrelacion(request, analisis_uuid):
                 plot_div = datos_fig.to_html(full_html=False)
                 autocorrelation_plot_div = autocorrelation_fig.to_html(full_html=False)
 
+            def adjuntar_grafica(grafica):
+                if not Grafica.objects.filter(analisis=analisis, tipo_dato="Autocorrelacion",imagen_html=grafica):
+                    Grafica.objects.create(
+                        analisis=analisis,
+                        fecha_creacion=datetime.now(),
+                        titulo=f"Figura {numero_graficas_por_usuario+1} de Autocorrelación ",
+                        tipo_dato="Autocorrelacion",
+                        imagen_html=grafica
+                    )
+                    messages.success(request, "Gráfica añadida correctamente")
+                else:
+                    messages.warning(request, "Hay una grafica igual adjuntada")
             action = request.POST.get('action')
-            if action == 'guardar':
+            if action == 'adjuntar_plot_div':
+                adjuntar_grafica(plot_div)
+            elif action == 'adjuntar_autocorrelacion_plot_div':
+                adjuntar_grafica(autocorrelation_plot_div)
+            elif action == 'guardar':
                 if Autocorrelacion.objects.filter(titulo=titulo, analisis=analisis).exists():
                     messages.warning(request, "Ya tiene una autocorrelación con el mismo título.")
                 elif not Autocorrelacion.objects.filter(
@@ -215,19 +235,19 @@ def calcular_autocorrelacion(request, analisis_uuid):
                             )
                 else:
                     messages.warning(request, "Ya existe una autocorrelación con los mismos datos.")
-
             return render(request, 'autocorrelacion.html', {
                 'form': form, 'plot_div': plot_div,
                 'autocorrelation_plot_div': autocorrelation_plot_div,
                 'analisis': analisis, 'autocorrelaciones': autocorrelaciones,
-                'analisis_uuid': analisis_uuid
+                'analisis_uuid': analisis_uuid,
+                'graficas':graficas_autocorrelaciones
             })
 
     else:
         form = AutocorrelacionForm(frecuencia=frecuencia_analisis, mostrar_opciones=mostrar_datos, analisis_uuid=analisis_uuid)
         form.fields['mostrar_datos'].choices = [(c, c.capitalize()) for c in mostrar_datos]
 
-    return render(request, 'autocorrelacion.html', {'form': form, 'analisis': analisis, 'autocorrelaciones': autocorrelaciones, 'analisis_uuid':analisis_uuid})
+    return render(request, 'autocorrelacion.html', {'form': form, 'analisis': analisis, 'autocorrelaciones': autocorrelaciones, 'analisis_uuid':analisis_uuid,'graficas':graficas_autocorrelaciones})
 
 
 @login_required(login_url="accounts/login/")
@@ -237,22 +257,35 @@ def resultados_autocorrelacion(request, analisis_uuid):
     except Analisis.DoesNotExist:
         raise Http404("El análisis no existe o no tienes permiso para acceder a él.")
     
+    graficas_autocorrelacion = Grafica.objects.filter(analisis=analisis, tipo_dato="Autocorrelacion")
     autocorrelaciones = Autocorrelacion.objects.filter(analisis=analisis).order_by('-fecha')
     datos_resultados_autocorrelacion = ResulatadosAutocorrelacion.objects.filter(autocorrelacion__in=autocorrelaciones)
 
     if request.method == 'POST':
-        dato_ids = request.POST.getlist('dato_ids')
-        Autocorrelacion.objects.filter(id__in=dato_ids).delete()
+        action = request.POST.get('action')
+        if action == 'delete_selected':
+            dato_ids = request.POST.getlist('dato_ids')
+            Autocorrelacion.objects.filter(id__in=dato_ids).delete()
+        elif action == 'delete_grafica':
+            grafica_id = request.POST.get('grafica_id')
+            grafica = get_object_or_404(Grafica, id=grafica_id)
+            grafica.delete()
         return redirect('resultados_autocorrelacion', analisis_uuid=analisis_uuid)
 
-    return render(request, 'resultados_autocorrelacion.html', {'analisis': analisis, 'datos': datos_resultados_autocorrelacion, 'analisis_uuid': analisis_uuid})
-
+    return render(request, 'resultados_autocorrelacion.html', {
+        'analisis': analisis,
+        'datos': datos_resultados_autocorrelacion,
+        'analisis_uuid': analisis_uuid,
+        'graficas': graficas_autocorrelacion
+    })
 
 @login_required(login_url="accounts/login/")
 def deteccion_de_outliers(request, analisis_uuid):
     analisis = get_object_or_404(Analisis, uuid=analisis_uuid, usuario=request.user)
     datos = list(DatosPreprocesados.objects.filter(analisis=analisis).order_by('fecha'))
     deteccion_de_outlierss = DeteccionDeOutliers.objects.filter(analisis=analisis)
+    graficas_detecciones = Grafica.objects.filter(analisis=analisis, tipo_dato="Deteccion de Outliers")
+    numero_graficas_por_usuario = Grafica.objects.filter(analisis=analisis, tipo_dato="Deteccion de Outliers").count()
     
     diccionario_datos = {field.name: [] for field in DatosPreprocesados._meta.get_fields()}
     for dato in datos:
@@ -312,7 +345,8 @@ def deteccion_de_outliers(request, analisis_uuid):
             }
 
         fig.update_layout(title=titulo, xaxis_title='Fecha', yaxis_title=col_name.capitalize(), showlegend=True)
-        return fig.to_html(), outliers_por_nombre
+        plot_div=fig.to_html()
+        return plot_div, outliers_por_nombre
 
     datos_fig_html = None
     titulo = None
@@ -339,8 +373,22 @@ def deteccion_de_outliers(request, analisis_uuid):
                 not valores['fechas_outliers'] and not valores['valores_outliers']
                 for valores in outliers_por_nombre.values()
             )
-
-            if request.POST.get('action') == 'guardar':
+            def adjuntar_grafica(grafica):
+                if not Grafica.objects.filter(analisis=analisis, tipo_dato="Deteccion de Outliers",imagen_html=grafica):
+                    Grafica.objects.create(
+                        analisis=analisis,
+                        fecha_creacion=datetime.now(),
+                        titulo=f"Figura {numero_graficas_por_usuario+1} de Detección de Outliers",
+                        tipo_dato="Deteccion de Outliers",
+                        imagen_html=grafica
+                    )
+                    messages.success(request, "Gráfica añadida correctamente")
+                else:
+                    messages.warning(request, "Hay una grafica igual adjuntada")
+            action = request.POST.get('action')
+            if action == 'adjuntar_datos_fig':
+                adjuntar_grafica(datos_fig_html)
+            elif action == 'guardar':
                 if DeteccionDeOutliers.objects.filter(titulo=titulo, analisis_id=analisis.pk).exists():
                     messages.warning(request, "Ya existe un estudio con el mismo título.")
                 elif all_outliers_empty:
@@ -374,9 +422,10 @@ def deteccion_de_outliers(request, analisis_uuid):
                 'deteccion_de_outliers_por_nombre': outliers_por_nombre,
                 'deteccion_de_outlier': deteccion_de_outlierss,
                 'analisis_uuid': analisis_uuid,
+                'graficas':graficas_detecciones
             })
     else:
-        form = DeteccionDeOutliersForm(frecuencia=analisis.frecuencia, mostrar_opciones=mostrar_datos, analisis_uuid=analisis_uuid)
+        form = DeteccionDeOutliersForm(frecuencia=analisis.frecuencia, mostrar_opciones=mostrar_datos, analisis_uuid=analisis_uuid)  
 
     return render(request, 'deteccion_de_outliers.html', {
         'form': form,
@@ -384,6 +433,7 @@ def deteccion_de_outliers(request, analisis_uuid):
         'titulo': titulo,
         'deteccion_de_outlier': deteccion_de_outlierss,
         'analisis_uuid': analisis_uuid,
+        'graficas':graficas_detecciones
     })
 
 @login_required(login_url="accounts/login/")
@@ -393,21 +443,34 @@ def resultados_deteccion_de_outliers(request, analisis_uuid):
     except Analisis.DoesNotExist:
         raise Http404("El análisis no existe o no tienes permiso para acceder a él.")
     
-    deteccion_de_outliers = DeteccionDeOutliers.objects.filter(analisis=analisis).order_by('-fecha')
-    datos_resultados_deteccion_de_outliers = ResulatadosDeteccionDeOutliers.objects.filter(deteccion_de_outlier__in=deteccion_de_outliers)
+    graficas_outliers = Grafica.objects.filter(analisis=analisis, tipo_dato="Deteccion de Outliers")
+    deteccion_de_outlier = DeteccionDeOutliers.objects.filter(analisis=analisis).order_by('-fecha')
+    datos_resultados_detecciones = ResulatadosDeteccionDeOutliers.objects.filter(deteccion_de_outlier__in=deteccion_de_outlier)
 
     if request.method == 'POST':
-        dato_ids = request.POST.getlist('dato_ids')
-        DeteccionDeOutliers.objects.filter(id__in=dato_ids).delete()
+        action = request.POST.get('action')
+        if action == 'delete_selected':
+            dato_ids = request.POST.getlist('dato_ids')
+            DeteccionDeOutliers.objects.filter(id__in=dato_ids).delete()
+        elif action == 'delete_grafica':
+            grafica_id = request.POST.get('grafica_id')
+            grafica = get_object_or_404(Grafica, id=grafica_id)
+            grafica.delete()
         return redirect('resultados_deteccion_de_outliers', analisis_uuid=analisis_uuid)
 
-    return render(request, 'resultados_deteccion_de_outliers.html', {'analisis': analisis, 'datos': datos_resultados_deteccion_de_outliers, 'analisis_uuid': analisis_uuid})
-
+    return render(request, 'resultados_deteccion_de_outliers.html', {
+        'analisis': analisis,
+        'datos': datos_resultados_detecciones,
+        'analisis_uuid': analisis_uuid,
+        'graficas': graficas_outliers
+    })
 
 @login_required(login_url="accounts/login/")
 def descomposicion_de_series_temporales(request, analisis_uuid):
     analisis = get_object_or_404(Analisis, uuid=analisis_uuid, usuario=request.user)
     descomposicion_de_series_temporaless = DescomposicionDeSeriesTemporales.objects.filter(analisis=analisis)
+    graficas_descomposiciones = Grafica.objects.filter(analisis=analisis, tipo_dato="Descomposicion de Series Temporales")
+    numero_graficas_por_usuario = Grafica.objects.filter(analisis=analisis, tipo_dato="Descomposicion de Series Temporales").count()
     
     datos = DatosPreprocesados.objects.filter(analisis=analisis).order_by('fecha')
     datos_tipo = {
@@ -505,7 +568,28 @@ def descomposicion_de_series_temporales(request, analisis_uuid):
             fig_residuo.update_layout(title='Residuo', xaxis_title='Fecha', yaxis_title=mostrar_datos.capitalize(), showlegend=True)
             datos_fig_html, tendencia_fig_html, estacionalidad_fig_html, residuo_fig_html = fig_datos.to_html(), fig_tendencia.to_html(), fig_estacionalidad.to_html(), fig_residuo.to_html()
 
-            if request.POST.get('action') == 'guardar':
+            def adjuntar_grafica(grafica):
+                if not Grafica.objects.filter(analisis=analisis, tipo_dato="Descomposicion de Series Temporales",imagen_html=grafica):
+                    Grafica.objects.create(
+                        analisis=analisis,
+                        fecha_creacion=datetime.now(),
+                        titulo=f"Figura {numero_graficas_por_usuario+1} de Descomposición de Series Temporales",
+                        tipo_dato="Descomposicion de Series Temporales",
+                        imagen_html=grafica
+                    )
+                    messages.success(request, "Gráfica añadida correctamente")
+                else:
+                    messages.warning(request, "Hay una grafica igual adjuntada")
+            action = request.POST.get('action')
+            if action == 'adjuntar_datos_fig':
+                adjuntar_grafica(datos_fig_html)
+            elif action == 'adjuntar_tendencia_fig':
+                adjuntar_grafica(tendencia_fig_html)
+            elif action == 'adjuntar_estacionalidad_fig':
+                adjuntar_grafica(estacionalidad_fig_html)
+            elif action == 'adjuntar_residuo_fig':
+                adjuntar_grafica(residuo_fig_html)
+            elif action == 'guardar':
                 if DescomposicionDeSeriesTemporales.objects.filter(titulo=titulo, analisis_id=analisis.pk).exists():
                     messages.warning(request, "Ya existe un estudio con el mismo título.")
                 elif not DescomposicionDeSeriesTemporales.objects.filter(analisis=analisis, metodo_calculo=metodo, estilo=visualizacion, nombre=mostrar_datos, ventana_tendencia=ventana_tendencia, ventana_estacionalidad=ventana_estacionalidad, suavizado_exponencial=suavizado_exponencial, fecha_inicio=fecha_inicio, fecha_fin=fecha_fin).exists():
@@ -539,7 +623,7 @@ def descomposicion_de_series_temporales(request, analisis_uuid):
                 
                 return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid})
 
-            return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid, 'datos_fig': datos_fig_html, 'tendencia_fig': tendencia_fig_html, 'estacionalidad_fig': estacionalidad_fig_html, 'residuos_fig': residuo_fig_html, 'descomposicion_de_serie_temporal':descomposicion_de_series_temporaless})
+            return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid, 'datos_fig': datos_fig_html, 'tendencia_fig': tendencia_fig_html, 'estacionalidad_fig': estacionalidad_fig_html, 'residuos_fig': residuo_fig_html, 'descomposicion_de_serie_temporal':descomposicion_de_series_temporaless,'graficas':graficas_descomposiciones})
 
     return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid})
 
@@ -552,12 +636,63 @@ def resultados_descomposicion_de_series_temporales(request, analisis_uuid):
     except Analisis.DoesNotExist:
         raise Http404("El análisis no existe o no tienes permiso para acceder a él.")
     
+    graficas_descomposiciones = Grafica.objects.filter(analisis=analisis, tipo_dato="Descomposicion de Series Temporales")
     descomposicion = DescomposicionDeSeriesTemporales.objects.filter(analisis=analisis).order_by('-fecha')
-    datos_resultados_descomposicion_de_series_temporales = ResultadosDescomposicionDeSeriesTemporales.objects.filter(descomposicion__in=descomposicion)
+    datos_resultados_descomposiciones = ResultadosDescomposicionDeSeriesTemporales.objects.filter(descomposicion__in=descomposicion)
 
     if request.method == 'POST':
-        dato_ids = request.POST.getlist('dato_ids')
-        DescomposicionDeSeriesTemporales.objects.filter(id__in=dato_ids).delete()
+        action = request.POST.get('action')
+        if action == 'delete_selected':
+            dato_ids = request.POST.getlist('dato_ids')
+            DescomposicionDeSeriesTemporales.objects.filter(id__in=dato_ids).delete()
+        elif action == 'delete_grafica':
+            grafica_id = request.POST.get('grafica_id')
+            grafica = get_object_or_404(Grafica, id=grafica_id)
+            grafica.delete()
         return redirect('resultados_descomposicion_de_series_temporales', analisis_uuid=analisis_uuid)
 
-    return render(request, 'resultados_descomposicion_de_series_temporales.html', {'analisis': analisis, 'datos': datos_resultados_descomposicion_de_series_temporales, 'analisis_uuid': analisis_uuid})
+    return render(request, 'resultados_descomposicion_de_series_temporales.html', {
+        'analisis': analisis,
+        'datos': datos_resultados_descomposiciones,
+        'analisis_uuid': analisis_uuid,
+        'graficas': graficas_descomposiciones
+    })
+
+def previsualizacion_pdf(request, analisis_uuid):
+    analisis = Analisis.objects.get(uuid=analisis_uuid, usuario=request.user)
+    datos_autocorrelaciones = ResulatadosAutocorrelacion.objects.select_related('autocorrelacion').filter(autocorrelacion__analisis=analisis)
+    datos_outliers = ResulatadosDeteccionDeOutliers.objects.select_related('deteccion_de_outlier').filter(deteccion_de_outlier__analisis=analisis)
+    datos_descomposiciones = ResultadosDescomposicionDeSeriesTemporales.objects.select_related('descomposicion').filter(descomposicion__analisis=analisis)
+    graficas_autocorrelacion=Grafica.objects.filter(analisis=analisis,tipo_dato="Autocorrelacion")
+    graficas_outliers=Grafica.objects.filter(analisis=analisis,tipo_dato="Deteccion de Outliers")
+    graficas_descomposiciones=Grafica.objects.filter(analisis=analisis,tipo_dato="Descomposicion de Series Temporales")
+    return render(request, 'previsualizacion_pdf.html', {'analisis': analisis, 'datos_autocorrelaciones': datos_autocorrelaciones, 'datos_outliers': datos_outliers, 'datos_descomposiciones': datos_descomposiciones,'graficas_autocorrelacion':graficas_autocorrelacion,'graficas_outliers':graficas_outliers,'graficas_descomposiciones':graficas_descomposiciones})
+
+def descargar_pdf(request, analisis_uuid):
+    analisis = Analisis.objects.get(uuid=analisis_uuid, usuario=request.user)
+    datos_autocorrelaciones = ResulatadosAutocorrelacion.objects.select_related('autocorrelacion').filter(autocorrelacion__analisis=analisis)
+    datos_outliers = ResulatadosDeteccionDeOutliers.objects.select_related('deteccion_de_outlier').filter(deteccion_de_outlier__analisis=analisis)
+    datos_descomposiciones = ResultadosDescomposicionDeSeriesTemporales.objects.select_related('descomposicion').filter(descomposicion__analisis=analisis)
+    graficas_autocorrelacion=Grafica.objects.filter(analisis=analisis,tipo_dato="Autocorrelacion")
+    graficas_outliers=Grafica.objects.filter(analisis=analisis,tipo_dato="Deteccion de Outliers")
+    graficas_descomposiciones=Grafica.objects.filter(analisis=analisis,tipo_dato="Descomposicion de Series Temporales")
+    
+    html_content = render_to_string('pdf.html', {
+        'analisis': analisis,
+        'datos_autocorrelaciones': datos_autocorrelaciones,
+        'datos_outliers': datos_outliers,
+        'datos_descomposiciones': datos_descomposiciones,
+        'graficas_autocorrelacion':graficas_autocorrelacion,
+        'graficas_outliers':graficas_outliers,
+        'graficas_descomposiciones':graficas_descomposiciones
+    })
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="resultados.pdf"'
+
+    pisa_status = pisa.CreatePDF(html_content, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF')
+    
+    return response

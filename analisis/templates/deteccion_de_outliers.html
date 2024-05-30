@@ -7,6 +7,9 @@
     <button type="button" onclick="guardarOutliers()">Guardar</button>
     <input type="hidden" id="action_input" name="action" value="">
 </form>
+{% if deteccion_de_outlier.exists or graficas.exists %}
+<a href="{% url 'resultados_deteccion_de_outliers' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
+{% endif %}
 
 {% if messages %}
     <div class="messages">
@@ -18,14 +21,23 @@
     </div>
 {% endif %}
 
-<div id="plotly_chart">{% if datos_fig %}{{ datos_fig|safe }}{% endif %}</div>
-{% if deteccion_de_outlier.exists %}
-<a href="{% url 'resultados_deteccion_de_outliers' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
+<div id="plotly_chart">{{ datos_fig|safe }}</div>
+{% if datos_fig %}
+<form id="deteccion_de_outliers_form" method="POST" action="">
+    {% csrf_token %}
+    <button type="button" onclick="guardarGraficaOutliers()">Adjuntar</button>
+    <input type="hidden" id="action_input" name="adjuntar" value="">
+</form>
 {% endif %}
+
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
     function guardarOutliers() {
         document.getElementById('action_input').value = 'guardar';
+        document.getElementById('deteccion_de_outliers_form').submit();
+    }
+    function guardarGraficaOutliers() {
+        document.getElementById('action_input').value = 'adjuntar_datos_fig';
         document.getElementById('deteccion_de_outliers_form').submit();
     }
 </script>

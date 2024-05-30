@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import analizar, resultados, mis_analisis, descargar_csv, calcular_autocorrelacion, resultados_autocorrelacion, deteccion_de_outliers, resultados_deteccion_de_outliers, descomposicion_de_series_temporales, resultados_descomposicion_de_series_temporales
+from .views import analizar, resultados, mis_analisis, descargar_csv, calcular_autocorrelacion, resultados_autocorrelacion, deteccion_de_outliers, resultados_deteccion_de_outliers, descomposicion_de_series_temporales, resultados_descomposicion_de_series_temporales, previsualizacion_pdf, descargar_pdf
 
 urlpatterns = [
     path('', analizar, name='analizar'),
@@ -12,4 +12,6 @@ urlpatterns = [
     path('mis_analisis/<uuid:analisis_uuid>/resultados/autocorrelacion/resultados_autocorrelacion/', resultados_autocorrelacion, name='resultados_autocorrelacion'),
     path('mis_analisis/<uuid:analisis_uuid>/resultados/deteccion_de_outliers/resultados_deteccion_de_outliers/', resultados_deteccion_de_outliers, name='resultados_deteccion_de_outliers'),
     path('mis_analisis/<uuid:analisis_uuid>/resultados/descomposicion_de_series_temporales/resultados_descomposicion_de_series_temporales/', resultados_descomposicion_de_series_temporales, name='resultados_descomposicion_de_series_temporales'),
+    path('mis_analisis/<uuid:analisis_uuid>/resultados/previsualizacion_pdf', previsualizacion_pdf, name='previsualizacion_pdf'),
+    path('mis_analisis/<uuid:analisis_uuid>/resultados/previsualizacion_pdf/descargar-pdf/', descargar_pdf, name='descargar_pdf'),
 ]

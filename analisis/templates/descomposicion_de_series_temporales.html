@@ -8,26 +8,8 @@
     <button type="button" onclick="guardarDescomposiciones()">Guardar</button>
     <input type="hidden" id="action_input" name="action" value="">
 </form>
-
-{% if datos_fig %}
-    <div id="grafica_descomposicion">
-        {{ datos_fig | safe }}
-    </div>
-{% endif %}
-{% if tendencia_fig %}
-    <div id="grafica_descomposicion">
-        {{ tendencia_fig | safe }}
-    </div>
-{% endif %}
-{% if estacionalidad_fig %}
-    <div id="grafica_descomposicion">
-        {{ estacionalidad_fig | safe }}
-    </div>
-{% endif %}
-{% if residuos_fig %}
-    <div id="grafica_descomposicion">
-        {{ residuos_fig | safe }}
-    </div>
+{% if descomposicion_de_serie_temporal.exists or graficas.exists %}
+<a href="{% url 'resultados_descomposicion_de_series_temporales' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
 {% endif %}
 
 {% if messages %}
@@ -40,13 +22,64 @@
     </div>
 {% endif %}
 
-{% if descomposicion_de_serie_temporal.exists %}
-<a href="{% url 'resultados_descomposicion_de_series_temporales' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
+<div id="grafica_descomposicion">{{ datos_fig | safe }}</div>
+{% if datos_fig %}
+    <form id="descomposicion_de_series_temporales_form" method="POST" action="">
+        {% csrf_token %}
+        <button type="button" onclick="guardarGraficaDatos()">Adjuntar</button>
+        <input type="hidden" id="action_input" name="adjuntar" value="">
+    </form>
 {% endif %}
+
+<div id="grafica_descomposicion">{{ tendencia_fig | safe }}</div>
+{% if tendencia_fig %}
+    <form id="descomposicion_de_series_temporales_form" method="POST" action="">
+        {% csrf_token %}
+        <button type="button" onclick="guardarGraficaTendencia()">Adjuntar</button>
+        <input type="hidden" id="action_input" name="adjuntar" value="">
+    </form>
+{% endif %}
+
+<div id="grafica_descomposicion">{{ estacionalidad_fig | safe }}</div>
+{% if estacionalidad_fig %}
+    <form id="descomposicion_de_series_temporales_form" method="POST" action="">
+        {% csrf_token %}
+        <button type="button" onclick="guardarGraficaEstacionalidad()">Adjuntar</button>
+        <input type="hidden" id="action_input" name="adjuntar" value="">
+    </form>
+{% endif %}
+<div id="grafica_descomposicion">{{ residuos_fig | safe }}</div>
+{% if residuos_fig %}
+    <form id="descomposicion_de_series_temporales_form" method="POST" action="">
+        {% csrf_token %}
+        <button type="button" onclick="guardarGraficaResiduo()">Adjuntar</button>
+        <input type="hidden" id="action_input" name="adjuntar" value="">
+    </form>
+{% endif %}
+
+{% for g in graficas %}
+    <div>{{ g.imagen }}</div>
+{% endfor %}
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
     function guardarDescomposiciones() {
         document.getElementById('action_input').value = 'guardar';
+        document.getElementById('descomposicion_de_series_temporales_form').submit();
+    }
+    function guardarGraficaDatos() {
+        document.getElementById('action_input').value = 'adjuntar_datos_fig';
+        document.getElementById('descomposicion_de_series_temporales_form').submit();
+    }
+    function guardarGraficaTendencia() {
+        document.getElementById('action_input').value = 'adjuntar_tendencia_fig';
+        document.getElementById('descomposicion_de_series_temporales_form').submit();
+    }
+    function guardarGraficaEstacionalidad() {
+        document.getElementById('action_input').value = 'adjuntar_estacionalidad_fig';
+        document.getElementById('descomposicion_de_series_temporales_form').submit();
+    }
+    function guardarGraficaResiduo() {
+        document.getElementById('action_input').value = 'adjuntar_residuo_fig';
         document.getElementById('descomposicion_de_series_temporales_form').submit();
     }
 </script>

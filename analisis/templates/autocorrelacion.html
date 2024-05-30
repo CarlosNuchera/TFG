@@ -7,6 +7,9 @@
     <button type="button" onclick="guardarAutocorrelacion()">Guardar</button>
     <input type="hidden" id="action_input" name="action" value="">
 </form>
+{% if autocorrelaciones.exists or graficas.exists %}
+<a href="{% url 'resultados_autocorrelacion' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
+{% endif %}
 
 {% if messages %}
     <div class="messages">
@@ -19,10 +22,22 @@
 {% endif %}
 
 <div id="plotly_chart">{{ plot_div|safe }}</div>
-<div id="autocorrelation_chart">{{ autocorrelation_plot_div|safe }}</div>
-{% if autocorrelaciones.exists %}
-<a href="{% url 'resultados_autocorrelacion' analisis_uuid %}" class="btn btn-primary">Consultar resultados</a>
+{% if plot_div %}
+    <form id="autocorrelacion_form" method="POST" action="">
+        {% csrf_token %}
+        <button type="button" onclick="guardarGraficaDatos()">Adjuntar</button>
+        <input type="hidden" id="action_input" name="adjuntar" value="">
+    </form>
 {% endif %}
+<div id="autocorrelation_chart">{{ autocorrelation_plot_div|safe }}</div>
+{% if autocorrelation_plot_div %}
+    <form id="autocorrelacion_form" method="POST" action="">
+        {% csrf_token %}
+        <button type="button" onclick="guardarGraficaAutocorrelacion()">Adjuntar</button>
+        <input type="hidden" id="action_input" name="adjuntar" value="">
+    </form>
+{% endif %}
+
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <script>
     var plot_div = document.getElementById('plotly_chart');
@@ -35,6 +50,14 @@
 
     function guardarAutocorrelacion() {
         document.getElementById('action_input').value = 'guardar';
+        document.getElementById('autocorrelacion_form').submit();
+    }
+    function guardarGraficaDatos() {
+        document.getElementById('action_input').value = 'adjuntar_plot_div';
+        document.getElementById('autocorrelacion_form').submit();
+    }
+    function guardarGraficaAutocorrelacion() {
+        document.getElementById('action_input').value = 'adjuntar_autocorrelacion_plot_div';
         document.getElementById('autocorrelacion_form').submit();
     }
 </script>

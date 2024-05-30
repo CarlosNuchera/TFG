@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <br>
+    <a href="{% url 'descargar_pdf' analisis_uuid=analisis.uuid %}" class="btn btn-primary" >Descargar como PDF</a>
+    <br>
+    <h1>Resultados para el análisis <strong>{{ analisis.nombre }}</strong>:</h1>
+    <br>
+{% if datos_autocorrelaciones.exists %}
+    <h2>Resultados de la Autocorrelación:</h2>
+    {% csrf_token %}
+    <table class="table table-info">
+        <thead class="thead-dark">
+        <tr>
+            <th>Título</th>
+            <th>Dato analizado</th>
+            <th>Nombre del dato</th>
+            <th>Estilo</th>
+            <th>Método de cálculo empleado</th>
+            <th>Tipo de Autocorrelación</th>
+            <th>Lag</th>
+            <th>Valor</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for dato in datos_autocorrelaciones %}
+            <tr class="table-light">
+                <td>{{ dato.autocorrelacion.titulo }}</td>
+                <td>{{ dato.autocorrelacion.nombre }}</td>
+                <td>{{ dato.nombre_dato }}</td>
+                <td>{{ dato.autocorrelacion.estilo }}</td>
+                <td>{{ dato.autocorrelacion.metodo_calculo }}</td>
+                <td>{{ dato.autocorrelacion.tipo }}</td>
+                <td>{{ dato.lag }}</td>
+                <td>{{ dato.valor }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No hay datos sobre Autocorrelación</p>
+{% endif %}
+<br>
+{% if graficas_autocorrelacion.exists %}
+            <h2>GRÁFICAS DE AUTOCORRELACIÓN:</h2>
+            {% for grafica in graficas_autocorrelacion %}
+                <div>{{ grafica.titulo }}</div>
+                <div>{{ grafica.imagen_html|safe }}</div>
+                <br>
+            {% endfor %}
+{% endif %}
+<br>
+{% if datos_outliers.exists %}
+    <h2>Resultados de la Detección de Outliers:</h2>
+    <table class="table table-info">
+        <thead class="thead-dark">
+        <tr>
+            <th>Título</th>
+            <th>Dato analizado</th>
+            <th>Nombre del dato</th>
+            <th>Método de cálculo empleado</th>
+            <th>Umbral</th>
+            <th>Fecha</th>
+            <th>Valor</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for dato in datos_outliers %}
+            <tr class="table-light">
+                <td>{{ dato.deteccion_de_outlier.titulo }}</td>
+                <td>{{ dato.deteccion_de_outlier.nombre }}</td>
+                <td>{{ dato.nombre_dato }}</td>
+                <td>{{ dato.deteccion_de_outlier.metodo_calculo }}</td>
+                <td>{{ dato.deteccion_de_outlier.umbral }}</td>
+                <td>{{ dato.fecha_dato }}</td>
+                <td>{{ dato.valor }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% else %}
+    <p>No hay datos sobre Detección de Outliers</p>
+{% endif %}
+<br>
+{% if graficas_outliers.exists %}
+            <h2>GRÁFICAS DE DETECCIÓN DE OUTLIERS:</h2>
+            {% for grafica in graficas_outliers %}
+                <div>{{ grafica.titulo }}</div>
+                <div>{{ grafica.imagen_html|safe }}</div>
+                <br>
+            {% endfor %}
+{% endif %}
+<br>
+{% if datos_descomposiciones.exists %}
+    <h2>Resultados de la Descomposición de Series Temporales:</h2>
+    <table class="table table-info">
+        <thead class="thead-dark">
+        <tr>
+            <th>Título</th>
+            <th>Dato analizado</th>
+            <th>Nombre del dato</th>
+            <th>Método de cálculo empleado</th>
+            <th>Fecha</th>
+            <th>Valor</th>
+            <th>Tendencia</th>
+            <th>Estacionalidad</th>
+            <th>Residuo</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for dato in datos_descomposiciones %}
+            <tr class="table-light">
+                <td>{{ dato.descomposicion.titulo }}</td>
+                <td>{{ dato.descomposicion.nombre }}</td>
+                <td>{{ dato.nombre_dato }}</td>
+                <td>{{ dato.descomposicion.metodo_calculo }}</td>
+                <td>{{ dato.fecha_dato }}</td>
+                <td>{{ dato.valor_dato }}</td>
+                <td>{{ dato.tendencia }}</td>
+                <td>{{ dato.estacionalidad }}</td>
+                <td>{{ dato.residuo }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No hay datos sobre Descomposición de series temporales</p>
+{% endif %}
+<br>
+{% if graficas_descomposiciones.exists %}
+    <h2>GRÁFICAS DE DESCOMPOSICIÓN DE SERIES TEMPORALES:</h2>
+    {% for grafica in graficas_descomposiciones %}
+        <div>{{ grafica.titulo }}</div>
+        <div>{{ grafica.imagen_html|safe }}</div>
+        <br>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

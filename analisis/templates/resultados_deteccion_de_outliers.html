@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    
     <br>
     <h2>Resultados para el análisis sobre detección de Outliers<strong>{{ analisis.id }} {{ analisis.nombre }}</strong>:</h2>
     <br>
     {% if datos.exists %}
         <form method="post" id="delete-form">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger mb-2" id="delete-selected">Eliminar seleccionados</button>
+            <button type="submit" name="action" value="delete_selected" class="btn btn-danger mb-2" id="delete-selected">Eliminar seleccionados</button>
             <button type="button" class="btn btn-secondary mb-2" id="select-all">Seleccionar todo</button>
             <button type="button" class="btn btn-primary mb-2" id="download-csv">Descargar CSV</button>
+
             <table class="table table-info">
                 <thead class="thead-dark">
                 <tr>
@@ -41,7 +41,22 @@
             </table>
         </form>
     {% else %}
-        <p>No hay autocorrelaciones agregadas</p>
+        <p>No hay outliers agregados</p>
+    {% endif %}
+    <br>
+    {% if graficas.exists %}
+        <h2>IMÁGENES:</h2>
+        {% for grafica in graficas %}
+            <div>{{ grafica.titulo }}</div>
+            <div>{{ grafica.imagen_html|safe }}</div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_grafica">
+                <input type="hidden" name="grafica_id" value="{{ grafica.id }}">
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+            <br>
+        {% endfor %}
     {% endif %}
     <script>
         document.getElementById('select-all').addEventListener('click', function () {
@@ -78,6 +93,4 @@
             link.click();
         });
     </script>
-
-
 {% endblock %}

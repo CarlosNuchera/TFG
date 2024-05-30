@@ -46,6 +46,21 @@
     {% else %}
         <p>No hay descomposiciones agregadas</p>
     {% endif %}
+    <br>
+    {% if graficas.exists %}
+        <h2>IMÁGENES:</h2>
+        {% for grafica in graficas %}
+            <div>{{ grafica.titulo }}</div>
+            <div>{{ grafica.imagen_html|safe }}</div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_grafica">
+                <input type="hidden" name="grafica_id" value="{{ grafica.id }}">
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+            <br>
+        {% endfor %}
+    {% endif %}
     <script>
         document.getElementById('select-all').addEventListener('click', function () {
             var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');

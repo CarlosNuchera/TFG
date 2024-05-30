@@ -132,3 +132,15 @@ class ResultadosDescomposicionDeSeriesTemporales(models.Model):
     tendencia = models.FloatField(null=True, blank=True)
     estacionalidad = models.FloatField(null=True, blank=True)
     residuo = models.FloatField(null=True, blank=True)
+
+
+class Grafica(models.Model):
+    analisis = models.ForeignKey(Analisis, on_delete=models.CASCADE)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    titulo = models.CharField(max_length=100)
+    tipo_dato = models.CharField(max_length=50)
+    imagen_html = models.TextField()
+
+    def __str__(self):
+        return f"Grafica para {self.analisis}"
+    

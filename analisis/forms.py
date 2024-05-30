@@ -61,7 +61,6 @@ class AutocorrelacionForm(forms.Form):
     )
     def __init__(self, frecuencia, mostrar_opciones, analisis_uuid, *args, **kwargs):
         super(AutocorrelacionForm, self).__init__(*args, **kwargs)
-        print(f"Frecuencia recibida: {frecuencia}")
 
         max_values = {
             'dias': 100,
@@ -109,9 +108,6 @@ class DeteccionDeOutliersForm(forms.Form):
     )
     def __init__(self, frecuencia, mostrar_opciones, analisis_uuid, *args, **kwargs):
         super(DeteccionDeOutliersForm, self).__init__(*args, **kwargs)
-        
-        print(f"Frecuencia recibida: {frecuencia}")
-
         max_values = {
             'dias': 10,
             'horas': 60,
