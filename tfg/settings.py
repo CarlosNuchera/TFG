@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_celery_results',
     'django_celery_beat',
+    'drf_yasg',
 ]
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
@@ -123,10 +124,13 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_DIR = os.path.join(BASE_DIR, "tfg", "static")
 
-# STATICFILES_DIRS es una lista de directorios adicionales donde Django buscará archivos estáticos
-STATICFILES_DIRS = [STATIC_DIR]
+STATICFILES_DIRS = [
+    # Agrega la ruta a la carpeta de archivos estáticos de tu aplicación
+    os.path.join(BASE_DIR, "static"),
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1>API de Consulta de Resultados de Análisis</h1>
+    <p>El objetivo de esta API es permitir que cualquier usuario pueda consultar los resultados de cualquier análisis, siempre que tenga el UUID correspondiente. Esto proporciona acceso a los resultados de análisis de una manera segura y eficiente.</p>
+    
+   
+    <h2>Documentación de la API</h2>
+    <p>Consulta la documentación de la API para obtener más información sobre cómo usarla:</p>
+    <div class="d-grid gap-2">
+        <a class="btn btn-primary" href="{% url 'schema-swagger-ui' %}" role="button">Swagger</a>
+        <a class="btn btn-secondary" href="{% url 'schema-redoc' %}" role="button">Redoc</a>
+    </div>
+</div>
+{% endblock %}

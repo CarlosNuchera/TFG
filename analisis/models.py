@@ -55,7 +55,6 @@ class Autocorrelacion(models.Model):
         ('puntos', 'Puntos'),
 
     ]
-
     analisis = models.ForeignKey(Analisis, on_delete=models.CASCADE)
     fecha = models.DateTimeField(unique=False)
     lag = models.IntegerField(default=1)
