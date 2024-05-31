@@ -11,10 +11,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-khx45!zo-)k^p^&iriz@mdt$3x6usfe8t67(3(qovuyhzobj8y'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Poner esto a False para las páginas de error
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -124,11 +124,10 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = [
-    # Agrega la ruta a la carpeta de archivos estáticos de tu aplicación
-    os.path.join(BASE_DIR, "static"),
+    BASE_DIR / "static",
 ]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # Default primary key field type

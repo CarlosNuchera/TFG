@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <style>
+        /* Estilos personalizados */
+        .error-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .error-container img {
+            max-width: 100%;
+            height: auto;
+        }
+        .error-container h1, .error-container p {
+            margin: 20px 0;
+        }
+    </style>
+    <div class="error-container">
+        <img src="{% static 'images/error404.png' %}" alt="404 Error">
+        <h1>404 - Página no encontrada</h1>
+        <p>Lo sentimos, pero la página que estás buscando no existe.</p>
+    </div>
+{% endblock %}

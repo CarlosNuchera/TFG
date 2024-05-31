@@ -11,10 +11,19 @@
                 <hr class="my-4">
                 <h5 class="text-center">Nuestros análisis incluyen:</h5>
                 <ul class="list-group text-center">
-                    <li class="list-group-item">Autocorrelación</li>
-                    <li class="list-group-item">Gráficas base</li>
-                    <li class="list-group-item">Detección de outliers</li>
-                    <li class="list-group-item">Descomposición de series temporales</li>
+                    <li class="list-group-item" onclick="showInfo('autocorrelacion')">Autocorrelación</li>
+                    <div id="autocorrelacion" class="additional-info" style="display: none;">
+                        <p>Las gráficas de autocorrelación desempeñan un papel crucial en la exploración de la dependencia temporal presente en los datos de consumo eléctrico español. Al aplicar estas técnicas a los datos obtenidos de las APIs de ESIOS y REE, podemos identificar patrones de correlación entre los valores de consumo en diferentes intervalos de tiempo. Esto nos permite comprender mejor la estructura temporal de la demanda eléctrica, incluyendo posibles tendencias, estacionalidades y ciclos recurrentes.</p>
+                    </div>
+                    <li class="list-group-item" onclick="showInfo('outliers')">Detección de outliers</li>
+                    <div id="outliers" class="additional-info" style="display: none;">
+                        <p>La detección de outliers es una técnica fundamental en el análisis de datos que se utiliza para identificar observaciones inusuales o atípicas en un conjunto de datos. Estas observaciones, conocidas como outliers, pueden representar puntos de datos que se desvían significativamente del comportamiento esperado o típico del resto de los datos. La detección de outliers es importante porque puede ayudar a identificar anomalías, errores en los datos o eventos inesperados que pueden afectar la interpretación y la validez de los resultados del análisis.
+                        </p>
+                    </div>
+                    <li class="list-group-item" onclick="showInfo('descomposicion')">Descomposición de series temporales</li>
+                    <div id="descomposicion" class="additional-info" style="display: none;">
+                        <p>Nos permite analizar la tendencia, la estacionalidad y los componentes residuales presentes en los datos de consumo eléctrico español. Al aplicar esta técnica a los datos obtenidos, podemos desglosar la demanda eléctrica en sus factores subyacentes y entender cómo estos contribuyen a la variabilidad observada en los datos.</p>
+                    </div>
                 </ul>
                 {% if request.user.is_authenticated %}
                 <p class="lead mt-4 text-center">
@@ -25,5 +34,16 @@
         </div>
     </div>
 </div>
+
+<script>
+    function showInfo(id) {
+        var info = document.getElementById(id);
+        if (info.style.display === "none") {
+            info.style.display = "block";
+        } else {
+            info.style.display = "none";
+        }
+    }
+</script>
 
 {% endblock %}

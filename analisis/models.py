@@ -55,6 +55,7 @@ class Autocorrelacion(models.Model):
         ('puntos', 'Puntos'),
 
     ]
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     analisis = models.ForeignKey(Analisis, on_delete=models.CASCADE)
     fecha = models.DateTimeField(unique=False)
     lag = models.IntegerField(default=1)
@@ -82,6 +83,7 @@ class DeteccionDeOutliers(models.Model):
         ('Histograma', 'Histograma'),
         ('Box_Plot', 'Box_Plot'),
     ]
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     analisis = models.ForeignKey(Analisis, on_delete=models.CASCADE)
     fecha = models.DateTimeField(unique=False)
     umbral = models.IntegerField(default=1)
@@ -108,6 +110,7 @@ class DescomposicionDeSeriesTemporales(models.Model):
         ('Grafico de area', 'Grafico de area'),
         ('Grafico de barras', 'Grafico de barras'),
     ]
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     analisis = models.ForeignKey(Analisis, on_delete=models.CASCADE)
     fecha = models.DateTimeField(unique=False)
     metodo_calculo = models.CharField(max_length=30, choices=METODO_CHOICES, default='Desviacion estandar')

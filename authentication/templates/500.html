@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* Estilos personalizados */
+    .error-container {
+        text-align: center;
+        margin-top: 50px;
+    }
+    .error-container img {
+        max-width: 100%;
+        height: auto;
+    }
+    .error-container h1, .error-container p {
+        margin: 20px 0;
+    }
+</style>
+<div class="error-container">
+    <img src="{% static 'images/error500.png' %}" alt="500 Error">
+    <h1>500 - Internal Server Error</h1>
+    <p>Ha ocurrido un error</p>
+</div>
+{% endblock %}

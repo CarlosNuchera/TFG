@@ -137,3 +137,52 @@ a:hover {
     color: green; /* Cambia este color al que desees */
     /* Otros estilos CSS según sea necesario */
 }
+/*Esto es para la página de contacto:*/
+.contact-container {
+    display: flex;
+    align-items: flex-start;
+    width: 500px; /* Ajusta el ancho del contenedor */
+}
+
+.contact-info {
+    flex: 1;
+    border: 2px solid #ccc;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.contact-item {
+    margin-bottom: 15px;
+}
+
+.contact-item h3 {
+    font-weight: bold;
+}
+
+.contact-item p {
+    margin-top: 5px;
+}
+
+.circulo-contacto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px; /* Ajusta el ancho del contenedor de la imagen */
+    height: 350px; /* Ajusta la altura del contenedor de la imagen */
+    margin-left: 20px; /* Ajusta el espacio entre la información de contacto y la imagen */
+}
+
+.imagen-perfil {
+    width: 150%; /* Ajusta el ancho de la imagen */
+    height: 150%; /* Ajusta la altura de la imagen */
+    overflow: hidden; /* Evita que la imagen se desborde del contenedor */
+    border-radius: 50%;
+}
+
+.imagen-perfil img {
+    width: 100%; /* Ajusta el tamaño de la imagen para que se ajuste al contenedor */
+    height: 100%;
+    object-fit: cover; /* Ajusta la imagen para cubrir completamente el contenedor */
+}
+
+/*Esto es para el formulario de autocorrelacion:*/

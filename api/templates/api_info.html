@@ -2,11 +2,20 @@
 {% block content %}
 <div class="container">
     <h1>API de Consulta de Resultados de Análisis</h1>
-    <p>El objetivo de esta API es permitir que cualquier usuario pueda consultar los resultados de cualquier análisis, siempre que tenga el UUID correspondiente. Esto proporciona acceso a los resultados de análisis de una manera segura y eficiente.</p>
+    <p>Estimado cliente,</p>
+    <p>Nuestra API de Consulta de Resultados de Análisis tiene como objetivo proporcionarle acceso seguro y eficiente a los resultados de sus análisis. Para garantizar la seguridad de sus datos, hemos implementado un sistema de identificación único llamado UUID (Identificador Único Universal). Este UUID le permite acceder de manera exclusiva a los resultados de sus análisis, brindándole una experiencia personalizada y protegiendo la confidencialidad de su información.</p>
     
-   
+    <h2>¿Cómo funciona?</h2>
+    <p>Para consultar los resultados de sus análisis, simplemente introduzca el UUID correspondiente al análisis que desea revisar. Una vez proporcionado el UUID, tendrá acceso a los siguientes tipos de análisis:</p>
+    <ul>
+        <li>Autocorrelaciones</li>
+        <li>Detección de Outliers</li>
+        <li>Descomposiciones de Series Temporales</li>
+    </ul>
+    <p>Realice la consulta utilizando el UUID de su análisis y acceda a los resultados de manera rápida y sencilla.</p>
+
     <h2>Documentación de la API</h2>
-    <p>Consulta la documentación de la API para obtener más información sobre cómo usarla:</p>
+    <p>Para obtener más información sobre cómo utilizar nuestra API, consulte nuestra documentación:</p>
     <div class="d-grid gap-2">
         <a class="btn btn-primary" href="{% url 'schema-swagger-ui' %}" role="button">Swagger</a>
         <a class="btn btn-secondary" href="{% url 'schema-redoc' %}" role="button">Redoc</a>

@@ -125,15 +125,20 @@ class ResultadosAutocorrelacionListView(generics.ListAPIView):
 
     @swagger_auto_schema(
         manual_parameters=[
-            openapi.Parameter('autocorrelacion_id', openapi.IN_QUERY, description="ID de la autocorrelación", type=openapi.TYPE_INTEGER, required=True),
+            openapi.Parameter('uuid', openapi.IN_QUERY, description="UUID de la autocorrelación", type=openapi.TYPE_STRING, required=True),
         ]
     )
     def get(self, request, *args, **kwargs):
-        autocorrelacion_id = request.GET.get('autocorrelacion_id')
-        if not autocorrelacion_id:
-            return Response({'error': 'El parámetro autocorrelacion_id es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
+        uuid_str = request.GET.get('uuid')
+        if not uuid_str:
+            return Response({'error': 'El parámetro uuid es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        queryset = self.queryset.filter(autocorrelacion_id=autocorrelacion_id)
+        try:
+            uuid_obj = uuid.UUID(uuid_str)
+        except ValueError:
+            return Response({'error': 'UUID inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = self.queryset.filter(autocorrelacion__uuid=uuid_obj)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -143,18 +148,22 @@ class ResultadosDeteccionDeOutliersListView(generics.ListAPIView):
 
     @swagger_auto_schema(
         manual_parameters=[
-            openapi.Parameter('deteccion_de_outliers_id', openapi.IN_QUERY, description="ID de la detección de outliers", type=openapi.TYPE_INTEGER, required=True),
+            openapi.Parameter('uuid', openapi.IN_QUERY, description="UUID de la detección de outliers", type=openapi.TYPE_STRING, required=True),
         ]
     )
     def get(self, request, *args, **kwargs):
-        deteccion_de_outlier_id = request.GET.get('deteccion_de_outliers_id')
-        if not deteccion_de_outlier_id:
-            return Response({'error': 'El parámetro deteccion_de_outliers_id es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
+        uuid_str = request.GET.get('uuid')
+        if not uuid_str:
+            return Response({'error': 'El parámetro uuid es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        queryset = self.queryset.filter(deteccion_de_outlier_id=deteccion_de_outlier_id)
+        try:
+            uuid_obj = uuid.UUID(uuid_str)
+        except ValueError:
+            return Response({'error': 'UUID inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = self.queryset.filter(deteccion_de_outlier__uuid=uuid_obj)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
     
 class ResultadosDescomposicionDeSeriesTemporalesListView(generics.ListAPIView):
     queryset = ResultadosDescomposicionDeSeriesTemporales.objects.all()
@@ -162,15 +171,20 @@ class ResultadosDescomposicionDeSeriesTemporalesListView(generics.ListAPIView):
 
     @swagger_auto_schema(
         manual_parameters=[
-            openapi.Parameter('descomposicion_id', openapi.IN_QUERY, description="ID de la descomposición de serie temporal", type=openapi.TYPE_INTEGER, required=True),
+            openapi.Parameter('uuid', openapi.IN_QUERY, description="UUID de la descomposición de serie temporal", type=openapi.TYPE_STRING, required=True),
         ]
     )
     def get(self, request, *args, **kwargs):
-        descomposicion_id = request.GET.get('descomposicion_id')
-        if not descomposicion_id:
-            return Response({'error': 'El parámetro descomposicion_de_serie_temporal_id es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
+        uuid_str = request.GET.get('uuid')
+        if not uuid_str:
+            return Response({'error': 'El parámetro uuid es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        queryset = self.queryset.filter(descomposicion_id=descomposicion_id)
+        try:
+            uuid_obj = uuid.UUID(uuid_str)
+        except ValueError:
+            return Response({'error': 'UUID inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = self.queryset.filter(descomposicion__uuid=uuid_obj)
 
         # Filtrar objetos con valores 'nan' en alguno de los campos
         queryset = [obj for obj in queryset if not (

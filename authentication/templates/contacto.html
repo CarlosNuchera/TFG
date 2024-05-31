@@ -1,9 +1,34 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-
-<h3>Información de contacto</h3>
-<hr>
-
-
+<div class="container">
+    <h1>Contacto</h1>
+    <div class="contact-container">
+        <div class="contact-info">
+            <div class="contact-item">
+                <h3>Nombre:</h3>
+                <p>Carlos Nuchera Bolaños</p>
+            </div>
+            <div class="contact-item">
+                <h3>Correo:</h3>
+                <p><a href="mailto:carnucbol@alum.us.es">carnucbol@alum.us.es</a></p>
+            </div>
+            <div class="contact-item">
+                <h3>Teléfono:</h3>
+                <p>669081623</p>
+            </div>
+            <div class="contact-item">
+                <h3>Repositorio de GitHub:</h3>
+                <p><a href="https://github.com/CarlosNuchera/TFG.git">https://github.com/CarlosNuchera/TFG.git</a></p>
+            </div>
+        </div>
+        <div class="circulo-contacto">
+            <a href="https://www.linkedin.com/in/carlos-nuchera-bola%C3%B1os-89402b302/">
+                <div class="imagen-perfil">
+                    <img src="{% static 'images/perfil.jpg' %}" alt="Perfil">
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
 {% endblock %}
