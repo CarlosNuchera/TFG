@@ -37,15 +37,16 @@ def contacto(request):
 @login_required
 def perfil(request):
     usuario = request.user
+    form = None  # Inicializar la variable form fuera del bloque condicional
 
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
-            update_session_auth_hash(request, user)  # Importante para que el usuario no sea desconectado
-            return redirect('perfil')  # O redirige a otra página de éxito
+            update_session_auth_hash(request, user)
+            return redirect('perfil')
     else:
-        form = PasswordChangeForm(request.user)
+        form = PasswordChangeForm(request.user)  # Si el método no es POST, inicializar el form aquí
 
     return render(request, 'perfil.html', {'usuario': usuario, 'form': form})
 

@@ -185,4 +185,30 @@ a:hover {
     object-fit: cover; /* Ajusta la imagen para cubrir completamente el contenedor */
 }
 
-/*Esto es para el formulario de autocorrelacion:*/
+/*Esto es para el botón de volver y centrar elementos:*/
+.centered-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.boton-volver {
+    background-color: #4CAF50; /* color de fondo */
+    border: none;
+    color: white; /* color del texto */
+    padding: 10px 20px; /* espaciado interno */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px; /* bordes redondeados */
+}
+
+/* Pseudoelemento para agregar la flecha */
+.boton-volver::after {
+    content: "\2190"; /* Código Unicode para la flecha izquierda */
+    margin-left: 5px; /* Espaciado entre el texto y la flecha */
+}

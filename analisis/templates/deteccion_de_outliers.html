@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
+<br>
+<a aria-current="page" class="boton-volver" href="{% url 'resultados' analisis_uuid=analisis_uuid %}">Volver</a>
+<br>
+<br>
+<br>
 <form id="deteccion_de_outliers_form" method="POST" action="">
     {% csrf_token %}
     {{ form.as_p }}

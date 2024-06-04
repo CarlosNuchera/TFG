@@ -2,7 +2,12 @@ from django import forms
 from .models import Analisis, Autocorrelacion, DeteccionDeOutliers, DescomposicionDeSeriesTemporales
 from esios.models import Datos
 
+class DeleteResultsForm(forms.Form):
+    titulo = forms.CharField(label="Título", max_length=100)
+
 class AnalisisForm(forms.ModelForm):
+    terminos_aceptados = forms.BooleanField(label="Acepto los términos y condiciones", required=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -14,11 +19,12 @@ class AnalisisForm(forms.ModelForm):
 
     class Meta:
         model = Analisis
-        fields = ['nombre', 'descripcion', 'tipos_de_dato', 'frecuencia']
+        fields = ['nombre', 'descripcion', 'tipos_de_dato', 'frecuencia', 'terminos_aceptados']
 
         widgets = {
             'frecuencia': forms.Select(choices=Analisis.FRECUENCIA_CHOICES),
         }
+    
     def clean_nombre(self):
         nombre = self.cleaned_data['nombre']
         if Analisis.objects.filter(nombre=nombre).exists():

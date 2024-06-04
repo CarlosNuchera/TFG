@@ -17,7 +17,10 @@
                     <form class="site-form" action="{% url 'analizar' %}" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-3">
-                            {{ form }}
+                            {{ form.as_p }}
+                            <p>
+                                <a aria-current="page" href={% url 'terminos_y_condiciones' %}>Consultar</a>
+                            </p>
                         </div>
                         <button type="submit" class="btn btn-primary">Analizar</button>
                     </form>

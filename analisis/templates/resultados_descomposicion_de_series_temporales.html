@@ -2,18 +2,29 @@
 
 {% block content %}
 <br>
+<a aria-current="page" class="boton-volver" href="{% url 'descomposicion_de_series_temporales' analisis_uuid=analisis_uuid %}">Volver</a>
+<br>
+<br>
     <h2>Resultados para el análisis sobre descomposición de Series Temporales<strong>{{ analisis.id }} {{ analisis.nombre }}</strong>:</h2>
     <br>
     {% if datos.exists %}
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-warning">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
         <form method="post" id="delete-form">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger mb-2" id="delete-selected">Eliminar seleccionados</button>
-            <button type="button" class="btn btn-secondary mb-2" id="select-all">Seleccionar todo</button>
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-danger">Borrar Series Temporales por Título</button>
             <button type="button" class="btn btn-primary mb-2" id="download-csv">Descargar CSV</button>
             <table class="table table-info">
                 <thead class="thead-dark">
                 <tr>
-                    <th><input type="checkbox" id="select-all-checkbox"></th>
                     <th>Título</th>
                     <th>Dato analizado</th>
                     <th>Nombre del dato</th>
@@ -28,7 +39,6 @@
                 <tbody>
                 {% for dato in datos %}
                     <tr class="table-light">
-                        <td><input type="checkbox" name="dato_ids" value="{{ dato.descomposicion.id }}"></td>
                         <td>{{ dato.descomposicion.titulo }}</td>
                         <td>{{ dato.descomposicion.nombre }}</td>
                         <td>{{ dato.nombre_dato }}</td>
@@ -62,20 +72,6 @@
         {% endfor %}
     {% endif %}
     <script>
-        document.getElementById('select-all').addEventListener('click', function () {
-            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');
-            checkboxes.forEach(function (checkbox) {
-                checkbox.checked = true;
-            });
-        });
-
-        document.getElementById('select-all-checkbox').addEventListener('change', function () {
-            var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');
-            checkboxes.forEach(function (checkbox) {
-                checkbox.checked = this.checked;
-            }, this);
-        });
-
         document.getElementById('download-csv').addEventListener('click', function () {
             var csv = [];
             var rows = document.querySelectorAll('table tr');
@@ -95,6 +91,12 @@
             document.body.appendChild(link);
             link.click();
         });
+        setTimeout(function() {
+            var messages = document.querySelectorAll('.alert');
+            messages.forEach(function(message) {
+                message.style.display = 'none';
+            });
+        }, 3000);
     </script>
 
 {% endblock %}

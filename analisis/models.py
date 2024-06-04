@@ -23,6 +23,7 @@ class Analisis(models.Model):
     usuario = models.ForeignKey(User, default=None, on_delete=models.CASCADE)
     tipos_de_dato = models.ManyToManyField(Datos, through='AnalisisDatos', related_name='analisis')
     estado=models.CharField(max_length=30, choices=ESTADO,default='En proceso')
+    terminos_y_condiciones=models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre

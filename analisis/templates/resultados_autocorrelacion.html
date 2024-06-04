@@ -3,19 +3,30 @@
 {% block content %}
     {% if analisis %}
         <br>
-        <h2>Resultados para el análisis <strong>{{ analisis.id }} {{ analisis.nombre }}</strong>:</h2>
+        <a aria-current="page" class="boton-volver" href="{% url 'autocorrelacion' analisis_uuid=analisis_uuid %}">Volver</a>
+        <br>
+        <br>
+        <h2>Resultados para el análisis <strong>{{ analisis.nombre }}</strong>:</h2>
         <br>
         {% if datos.exists %}
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-warning">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        </form>
             <form method="post" id="delete-form">
                 {% csrf_token %}
-                <input type="hidden" name="action" value="delete_selected">
-                <button type="submit" class="btn btn-danger mb-2" id="delete-selected">Eliminar seleccionados</button>
-                <button type="button" class="btn btn-secondary mb-2" id="select-all">Seleccionar todo</button>
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-danger">Borrar Autocorrelación por Título</button>
                 <button type="button" class="btn btn-primary mb-2" id="download-csv">Descargar CSV</button>
                 <table class="table table-info">
                     <thead class="thead-dark">
                     <tr>
-                        <th><input type="checkbox" id="select-all-checkbox"></th>
                         <th>Título</th>
                         <th>Dato analizado</th>
                         <th>Nombre del dato</th>
@@ -28,8 +39,7 @@
                     </thead>
                     <tbody>
                     {% for dato in datos %}
-                        <tr class="table-light">
-                            <td><input type="checkbox" name="dato_ids" value="{{ dato.autocorrelacion.id }}"></td>
+                        <tr class="table-light" id="row-{{ dato.autocorrelacion.id }}">
                             <td>{{ dato.autocorrelacion.titulo }}</td>
                             <td>{{ dato.autocorrelacion.nombre }}</td>
                             <td>{{ dato.nombre_dato }}</td>
@@ -43,6 +53,7 @@
                     </tbody>
                 </table>
             </form>
+            
         {% else %}
             <p>No hay autocorrelaciones agregadas</p>
         {% endif %}
@@ -62,20 +73,6 @@
             {% endfor %}
         {% endif %}
         <script>
-            document.getElementById('select-all').addEventListener('click', function () {
-                var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');
-                checkboxes.forEach(function (checkbox) {
-                    checkbox.checked = true;
-                });
-            });
-
-            document.getElementById('select-all-checkbox').addEventListener('change', function () {
-                var checkboxes = document.querySelectorAll('input[type="checkbox"][name="dato_ids"]');
-                checkboxes.forEach(function (checkbox) {
-                    checkbox.checked = this.checked;
-                }, this);
-            });
-
             document.getElementById('download-csv').addEventListener('click', function () {
                 var csv = [];
                 var rows = document.querySelectorAll('table tr');
@@ -95,6 +92,12 @@
                 document.body.appendChild(link);
                 link.click();
             });
+            setTimeout(function() {
+                var messages = document.querySelectorAll('.alert');
+                messages.forEach(function(message) {
+                    message.style.display = 'none';
+                });
+            }, 3000);
         </script>
 
     {% endif %}

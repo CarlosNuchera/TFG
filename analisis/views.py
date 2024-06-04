@@ -21,6 +21,10 @@ from datetime import datetime
 from xhtml2pdf import pisa
 from django.template.loader import render_to_string
 
+@login_required(login_url="accounts/login/")
+def terminos_y_condiciones(request):
+    return render(request, 'terminos_y_condiciones.html')
+
 
 @login_required(login_url="accounts/login/")
 def analizar(request):
@@ -41,15 +45,18 @@ def analizar(request):
             analisis = form.save(commit=False)
             analisis.usuario = request.user
             frecuencia = form.cleaned_data['frecuencia']
+            aceptado = form.cleaned_data['terminos_aceptados']
             analisis.frecuencia = frecuencia
-            analisis.save()
-            analisis_id=analisis.id
-            tipos_seleccionados = form.cleaned_data['tipos_de_dato']
-            if not isinstance(tipos_seleccionados, list):
-                tipos_seleccionados = [tipos_seleccionados]
-            procesar_datos_en_segundo_plano.delay(analisis_id, tipos_seleccionados)
- 
-            return redirect('mis_analisis')
+            if aceptado == True:
+                analisis.save()
+                analisis_id=analisis.id
+                tipos_seleccionados = form.cleaned_data['tipos_de_dato']
+                
+                if not isinstance(tipos_seleccionados, list):
+                    tipos_seleccionados = [tipos_seleccionados]
+                procesar_datos_en_segundo_plano.delay(analisis_id, tipos_seleccionados)
+    
+                return redirect('mis_analisis')
     else:
         form = AnalisisForm()
     return render(request, 'analizar.html', {'form': form})
@@ -263,21 +270,32 @@ def resultados_autocorrelacion(request, analisis_uuid):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'delete_selected':
-            dato_ids = request.POST.getlist('dato_ids')
-            Autocorrelacion.objects.filter(id__in=dato_ids).delete()
-        elif action == 'delete_grafica':
+        if action == 'delete_grafica':
             grafica_id = request.POST.get('grafica_id')
             grafica = get_object_or_404(Grafica, id=grafica_id)
             grafica.delete()
-        return redirect('resultados_autocorrelacion', analisis_uuid=analisis_uuid)
+        form = DeleteResultsForm(request.POST)
+        if form.is_valid():
+            titulo_autocorrelacion = form.cleaned_data['titulo']
+            try:
+                autocorrelacion = Autocorrelacion.objects.get(titulo=titulo_autocorrelacion, analisis=analisis)
+                autocorrelacion.delete()
+                messages.success(request, f"La autocorrelación '{titulo_autocorrelacion}' y sus resultados han sido eliminados.")
+            except Autocorrelacion.DoesNotExist:
+                messages.error(request, f"No se encontró ninguna autocorrelación con el título '{titulo_autocorrelacion}'.")
+        else:
+            messages.error(request, "Por favor, corrige los errores en el formulario.")
+    else:
+        form = DeleteResultsForm()
 
     return render(request, 'resultados_autocorrelacion.html', {
         'analisis': analisis,
         'datos': datos_resultados_autocorrelacion,
         'analisis_uuid': analisis_uuid,
-        'graficas': graficas_autocorrelacion
+        'graficas': graficas_autocorrelacion,
+        'form': form
     })
+
 
 @login_required(login_url="accounts/login/")
 def deteccion_de_outliers(request, analisis_uuid):
@@ -449,20 +467,30 @@ def resultados_deteccion_de_outliers(request, analisis_uuid):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'delete_selected':
-            dato_ids = request.POST.getlist('dato_ids')
-            DeteccionDeOutliers.objects.filter(id__in=dato_ids).delete()
-        elif action == 'delete_grafica':
+        if action == 'delete_grafica':
             grafica_id = request.POST.get('grafica_id')
             grafica = get_object_or_404(Grafica, id=grafica_id)
             grafica.delete()
-        return redirect('resultados_deteccion_de_outliers', analisis_uuid=analisis_uuid)
+        form = DeleteResultsForm(request.POST)
+        if form.is_valid():
+            titulo_deteccion = form.cleaned_data['titulo']
+            try:
+                detecciones = DeteccionDeOutliers.objects.get(titulo=titulo_deteccion, analisis=analisis)
+                detecciones.delete()
+                messages.success(request, f"La detección de outlier '{titulo_deteccion}' y sus resultados han sido eliminados.")
+            except DeteccionDeOutliers.DoesNotExist:
+                messages.error(request, f"No se encontró ninguna detección de outlier con el título '{titulo_deteccion}'.")
+        else:
+            messages.error(request, "Por favor, corrige los errores en el formulario.")
+    else:
+        form = DeleteResultsForm()
 
     return render(request, 'resultados_deteccion_de_outliers.html', {
         'analisis': analisis,
         'datos': datos_resultados_detecciones,
         'analisis_uuid': analisis_uuid,
-        'graficas': graficas_outliers
+        'graficas': graficas_outliers,
+        'form':form
     })
 
 @login_required(login_url="accounts/login/")
@@ -621,11 +649,10 @@ def descomposicion_de_series_temporales(request, analisis_uuid):
                 else:
                     messages.warning(request, "Ya existe un estudio con los mismos parámetros.")
                 
-                return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid})
+                return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid,'descomposicion_de_serie_temporal':descomposicion_de_series_temporaless ,'graficas':graficas_descomposiciones})
 
             return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid, 'datos_fig': datos_fig_html, 'tendencia_fig': tendencia_fig_html, 'estacionalidad_fig': estacionalidad_fig_html, 'residuos_fig': residuo_fig_html, 'descomposicion_de_serie_temporal':descomposicion_de_series_temporaless,'graficas':graficas_descomposiciones})
-
-    return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid})
+    return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid,'descomposicion_de_serie_temporal':descomposicion_de_series_temporaless ,'graficas':graficas_descomposiciones})
 
 
 
@@ -642,20 +669,30 @@ def resultados_descomposicion_de_series_temporales(request, analisis_uuid):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'delete_selected':
-            dato_ids = request.POST.getlist('dato_ids')
-            DescomposicionDeSeriesTemporales.objects.filter(id__in=dato_ids).delete()
-        elif action == 'delete_grafica':
+        if action == 'delete_grafica':
             grafica_id = request.POST.get('grafica_id')
             grafica = get_object_or_404(Grafica, id=grafica_id)
             grafica.delete()
-        return redirect('resultados_descomposicion_de_series_temporales', analisis_uuid=analisis_uuid)
+        form = DeleteResultsForm(request.POST)
+        if form.is_valid():
+            titulo_descomposicion = form.cleaned_data['titulo']
+            try:
+                series_temporales = DescomposicionDeSeriesTemporales.objects.get(titulo=titulo_descomposicion, analisis=analisis)
+                series_temporales.delete()
+                messages.success(request, f"La serie temporal '{titulo_descomposicion}' y sus resultados han sido eliminados.")
+            except DescomposicionDeSeriesTemporales.DoesNotExist:
+                messages.error(request, f"No se encontró ninguna serie temporal con el título '{titulo_descomposicion}'.")
+        else:
+            messages.error(request, "Por favor, corrige los errores en el formulario.")
+    else:
+        form = DeleteResultsForm()
 
     return render(request, 'resultados_descomposicion_de_series_temporales.html', {
         'analisis': analisis,
         'datos': datos_resultados_descomposiciones,
         'analisis_uuid': analisis_uuid,
-        'graficas': graficas_descomposiciones
+        'graficas': graficas_descomposiciones,
+        'form':form
     })
 
 def previsualizacion_pdf(request, analisis_uuid):

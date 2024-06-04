@@ -3,6 +3,10 @@
 {% block content %}
 
 {% if analisis %}
+    <br>
+    <a aria-current="page" class="boton-volver" href="{% url 'mis_analisis' %}">Volver</a>
+    <br>
+    <br>
     <h4>Detalles del Análisis</h4>
     <ul>
         <li><strong>Nombre:</strong> {{ analisis.nombre }}</li>
