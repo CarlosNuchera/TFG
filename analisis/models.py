@@ -147,3 +147,13 @@ class Grafica(models.Model):
     def __str__(self):
         return f"Grafica para {self.analisis}"
     
+class GraficaImagen(models.Model):
+    analisis = models.ForeignKey(Analisis, on_delete=models.CASCADE)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    titulo = models.CharField(max_length=100)
+    tipo_dato = models.CharField(max_length=50)
+    imagen = models.ImageField()
+
+    def __str__(self):
+        return f"Grafica para {self.analisis}"
+      

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Nombre de usuario</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellidos</th>
+                <th scope="col">Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for analista in analistas %}
+                <tr>
+                    <td>{{ analista.username }}</td>
+                    <td>{{ analista.first_name }}</td>
+                    <td>{{ analista.last_name }}</td>
+                    <td><a href="mailto:{{ analista.email }}">{{ analista.email }}</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var emailLinks = document.querySelectorAll('a[href^="mailto:"]');
+            emailLinks.forEach(function(link) {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    window.location.href = this.getAttribute('href');
+                });
+            });
+        });
+    </script>
+    
+{% endblock %}

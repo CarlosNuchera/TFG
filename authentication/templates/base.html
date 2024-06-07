@@ -35,6 +35,9 @@
                     <a class="nav-link" href={% url 'contacto' %}>Contactar</a>
                   </li>
                   <li class="nav-item">
+                    <a class="nav-link" href={% url 'analistas' %}>Analistas</a>
+                  </li>
+                  <li class="nav-item">
                     <a class="nav-link" href={% url 'api_info' %}>API</a>
                   </li>
                   {% if request.user.is_authenticated %}

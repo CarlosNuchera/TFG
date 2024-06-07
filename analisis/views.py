@@ -20,6 +20,9 @@ from scipy.stats import zscore
 from datetime import datetime
 from xhtml2pdf import pisa
 from django.template.loader import render_to_string
+import plotly.io as py
+from PIL import Image
+import io
 
 @login_required(login_url="accounts/login/")
 def terminos_y_condiciones(request):
@@ -79,6 +82,22 @@ def mis_analisis(request):
 @login_required(login_url="accounts/login/")
 def resultados(request, analisis_uuid):
     analisis = get_object_or_404(Analisis, uuid=analisis_uuid, usuario=request.user)
+    '''graficas = Grafica.objects.all()
+    html=[]
+    for g in graficas:
+        fig = go.Figure(data=g.imagen_html)
+        img_bytes = py.write_image(fig, format="png")
+        image = Image.open(io.BytesIO(img_bytes))
+        if not GraficaImagen.objects.filter(imagen=image):
+            grafica_imagen = GraficaImagen.objects.create(
+                analisis=analisis,
+                fecha_creacion=datetime.now(),
+                titulo=g.titulo,
+                tipo_dato=g.tipo_dato,
+                imagen=image
+            )
+        
+    graficas_imagenes=GraficaImagen.objects.all()'''
 
     if analisis.estado != 'Terminado':
         raise Http404("No se puede acceder a los resultados hasta que el análisis esté terminado.")
