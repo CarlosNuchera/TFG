@@ -1,0 +1,214 @@
+.error-message {
+    color: red;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+/*De cuadros-container a .cuadro .titulo para la vista de resultados*/
+.cuadros-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.cuadro {
+    flex: 1;
+    margin: 10px;
+    text-align: center;
+    max-width: 300px;
+}
+
+.cuadro img {
+    max-width: 300px;
+    height: auto;
+}
+
+.cuadro a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.cuadro .titulo {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+ul, li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+li strong {
+    font-weight: bold;
+}
+
+/* Estilos específicos para la lista anidada */
+ul ul {
+    margin-left: 20px; /* Indentación para las listas anidadas */
+}
+
+/* Estilos generales para el texto */
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Estilos específicos para el enlace */
+a {
+    text-decoration: none;
+    color: #007bff; /* Color azul para los enlaces */
+}
+
+a:hover {
+    color: #0056b3; /* Cambia el color del enlace al pasar el cursor */
+}
+
+.site-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Centra los elementos del formulario */
+}
+
+.site-form h4 {
+    margin-bottom: 20px;
+}
+
+.site-form label {
+    display: block;
+    text-align: left; /* Alinea el texto del label a la izquierda */
+    margin-bottom: 10px;
+}
+
+/* Ajusta el tamaño del input para el nombre */
+.site-form input[type="text"] {
+    width: calc(50% - 5px); /* Ancho del 50% menos el espacio */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+/* Ajusta el ancho del input para la descripción */
+.site-form textarea {
+    width: calc(100% - 16px); /* Ancho completo menos el espacio */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+
+/* Estilos para el selector */
+.site-form select {
+    width: 100%;
+    padding: 8px;
+    border: none; /* Elimina el borde del select */
+    border-radius: 5px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    appearance: none; /* Oculta el cuadro de selección predeterminado */
+    background-color: #e9f5e7; /* Color de fondo verde */
+}
+
+/* Estilos para las opciones seleccionadas */
+.site-form select option:checked {
+    background-color: green; /* Color de fondo verde para las opciones seleccionadas */
+    color: white; /* Color del texto blanco para las opciones seleccionadas */
+}
+
+.enlace-resultados {
+    color: #27963aad; /* Color azul por defecto */
+    text-decoration: none; /* Elimina el subrayado */
+}
+
+.enlace-resultados:hover,
+.enlace-resultados:active {
+    color: green; /* Cambia el color a verde cuando se activa el enlace */
+}
+
+.alert.success {
+    color: green; /* Cambia este color al que desees */
+    /* Otros estilos CSS según sea necesario */
+}
+/*Esto es para la página de contacto:*/
+.contact-container {
+    display: flex;
+    align-items: flex-start;
+    width: 500px; /* Ajusta el ancho del contenedor */
+}
+
+.contact-info {
+    flex: 1;
+    border: 2px solid #ccc;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.contact-item {
+    margin-bottom: 15px;
+}
+
+.contact-item h3 {
+    font-weight: bold;
+}
+
+.contact-item p {
+    margin-top: 5px;
+}
+
+.circulo-contacto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 350px; /* Ajusta el ancho del contenedor de la imagen */
+    height: 350px; /* Ajusta la altura del contenedor de la imagen */
+    margin-left: 20px; /* Ajusta el espacio entre la información de contacto y la imagen */
+}
+
+.imagen-perfil {
+    width: 150%; /* Ajusta el ancho de la imagen */
+    height: 150%; /* Ajusta la altura de la imagen */
+    overflow: hidden; /* Evita que la imagen se desborde del contenedor */
+    border-radius: 50%;
+}
+
+.imagen-perfil img {
+    width: 100%; /* Ajusta el tamaño de la imagen para que se ajuste al contenedor */
+    height: 100%;
+    object-fit: cover; /* Ajusta la imagen para cubrir completamente el contenedor */
+}
+
+/*Esto es para el botón de volver y centrar elementos:*/
+.centered-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.boton-volver {
+    background-color: #4CAF50; /* color de fondo */
+    border: none;
+    color: white; /* color del texto */
+    padding: 10px 20px; /* espaciado interno */
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px; /* bordes redondeados */
+}
+
+/* Pseudoelemento para agregar la flecha */
+.boton-volver::after {
+    content: "\2190"; /* Código Unicode para la flecha izquierda */
+    margin-left: 5px; /* Espaciado entre el texto y la flecha */
+}
