@@ -4,20 +4,24 @@
     <table class="table table-striped">
         <thead class="thead-dark">
             <tr>
-                <th scope="col">Nombre de usuario</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Apellidos</th>
-                <th scope="col">Email</th>
+                <th scope="col">Nombre del analisis</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Nombre del analista</th>
+                <th scope="col">Apellidos del analista</th>
+                <th scope="col">Email de contacto</th>
             </tr>
         </thead>
         <tbody>
-            {% for analista in analistas %}
-                <tr>
-                    <td>{{ analista.username }}</td>
-                    <td>{{ analista.first_name }}</td>
-                    <td>{{ analista.last_name }}</td>
-                    <td><a href="mailto:{{ analista.email }}">{{ analista.email }}</a></td>
-                </tr>
+            {% for a in analisis %}
+                {% if not a.usuario.is_superuser %}
+                    <tr>
+                        <td>{{ a.nombre }}</td>
+                        <td>{{ a.descripcion }}</td>
+                        <td>{{ a.usuario.first_name }}</td>
+                        <td>{{ a.usuario.last_name }}</td>
+                        <td><a href="mailto:{{ a.usuario.email }}">{{ a.usuario.email }}</a></td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>

@@ -7,6 +7,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.contrib.auth.models import User
+from analisis.models import Analisis
 
 def home(request):
     return render(request, 'home.html')
@@ -59,5 +60,5 @@ def eliminar_cuenta(request):
     return redirect('home')
 
 def analistas(request):
-    analistas = User.objects.filter(is_superuser=False)
-    return render(request, 'analistas.html', {'analistas': analistas})
+    analisis= Analisis.objects.filter(estado='Terminado')
+    return render(request, 'analistas.html', {'analisis':analisis})
