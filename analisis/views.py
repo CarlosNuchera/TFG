@@ -24,6 +24,7 @@ import plotly.io as py
 from PIL import Image
 import io
 from statsmodels.tsa.stattools import acf, pacf
+from statsmodels.tsa.seasonal import seasonal_decompose
 
 @login_required(login_url="accounts/login/")
 def terminos_y_condiciones(request):
@@ -595,12 +596,23 @@ def descomposicion_de_series_temporales(request, analisis_uuid):
             def descomposicion_serie(datos, fechas, ventana_tendencia, ventana_estacionalidad, suavizado, metodo, color):
                 df = pd.DataFrame({'fecha': fechas, mostrar_datos: datos}).set_index('fecha')
                 df[mostrar_datos] = suavizar_serie(df[mostrar_datos], suavizado)
-                descomposicion = sm.tsa.seasonal_decompose(df[mostrar_datos], model=metodo.lower(), period=ventana_estacionalidad)
-                tendencia, estacionalidad, residuo = descomposicion.trend, descomposicion.seasonal, descomposicion.resid
+                
+                if metodo == 'Aditiva':
+                    descomposicion = seasonal_decompose(df[mostrar_datos], model='additive', period=ventana_estacionalidad)
+                    tendencia = descomposicion.trend.rolling(window=ventana_tendencia, min_periods=1, center=True).mean()
+                    estacionalidad = descomposicion.seasonal
+                    residuo = descomposicion.resid
+                elif metodo == 'Multiplicativa':
+                    descomposicion = seasonal_decompose(df[mostrar_datos], model='multiplicative', period=ventana_estacionalidad)
+                    tendencia = descomposicion.trend.rolling(window=ventana_tendencia, min_periods=1, center=True).mean()
+                    estacionalidad = descomposicion.seasonal
+                    residuo = descomposicion.resid
+
                 agregar_traza(fig_datos, fechas, datos, nombre, color, visualizacion)
                 agregar_traza(fig_tendencia, fechas, tendencia, f'Tendencia ({nombre})', color, visualizacion)
                 agregar_traza(fig_estacionalidad, fechas, estacionalidad, f'Estacionalidad ({nombre})', color, visualizacion)
                 agregar_traza(fig_residuo, fechas, residuo, f'Residuo ({nombre})', color, visualizacion)
+                
                 return tendencia, estacionalidad, residuo
 
             fig_datos, fig_tendencia, fig_estacionalidad, fig_residuo = go.Figure(), go.Figure(), go.Figure(), go.Figure()
@@ -620,7 +632,7 @@ def descomposicion_de_series_temporales(request, analisis_uuid):
             datos_fig_html, tendencia_fig_html, estacionalidad_fig_html, residuo_fig_html = fig_datos.to_html(), fig_tendencia.to_html(), fig_estacionalidad.to_html(), fig_residuo.to_html()
 
             def adjuntar_grafica(grafica):
-                if not Grafica.objects.filter(analisis=analisis, tipo_dato="Descomposicion de Series Temporales",imagen_html=grafica):
+                if not Grafica.objects.filter(analisis=analisis, tipo_dato="Descomposicion de Series Temporales", imagen_html=grafica).exists():
                     Grafica.objects.create(
                         analisis=analisis,
                         fecha_creacion=datetime.now(),
@@ -630,7 +642,8 @@ def descomposicion_de_series_temporales(request, analisis_uuid):
                     )
                     messages.success(request, "Gráfica añadida correctamente")
                 else:
-                    messages.warning(request, "Hay una grafica igual adjuntada")
+                    messages.warning(request, "Hay una gráfica igual adjuntada")
+
             action = request.POST.get('action')
             if action == 'adjuntar_datos_fig':
                 adjuntar_grafica(datos_fig_html)
@@ -672,12 +685,11 @@ def descomposicion_de_series_temporales(request, analisis_uuid):
                 else:
                     messages.warning(request, "Ya existe un estudio con los mismos parámetros.")
                 
-                return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid,'descomposicion_de_serie_temporal':descomposicion_de_series_temporaless ,'graficas':graficas_descomposiciones})
+                return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid, 'descomposicion_de_serie_temporal': descomposicion_de_series_temporaless, 'graficas': graficas_descomposiciones})
 
-            return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid, 'datos_fig': datos_fig_html, 'tendencia_fig': tendencia_fig_html, 'estacionalidad_fig': estacionalidad_fig_html, 'residuos_fig': residuo_fig_html, 'descomposicion_de_serie_temporal':descomposicion_de_series_temporaless,'graficas':graficas_descomposiciones})
-    return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid,'descomposicion_de_serie_temporal':descomposicion_de_series_temporaless ,'graficas':graficas_descomposiciones})
-
-
+            return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid, 'datos_fig': datos_fig_html, 'tendencia_fig': tendencia_fig_html, 'estacionalidad_fig': estacionalidad_fig_html, 'residuos_fig': residuo_fig_html, 'descomposicion_de_serie_temporal': descomposicion_de_series_temporaless, 'graficas': graficas_descomposiciones})
+    
+    return render(request, 'descomposicion_de_series_temporales.html', {'form': form, 'analisis_uuid': analisis_uuid, 'descomposicion_de_serie_temporal': descomposicion_de_series_temporaless, 'graficas': graficas_descomposiciones})
 
 @login_required(login_url="accounts/login/")
 def resultados_descomposicion_de_series_temporales(request, analisis_uuid):
