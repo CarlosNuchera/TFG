@@ -199,7 +199,7 @@ def calcular_autocorrelacion(request, analisis_uuid):
                             autocorr = spearman_partial_autocorr(df[campo.capitalize()].values, lag)
 
                     autocorrelation_fig.add_trace(go.Scatter(
-                        x=list(range(lag + 1)), y=autocorr, mode='markers+lines' if visualizacion != 'puntos' else 'markers',
+                        x=list(range(lag + 1)), y=autocorr, mode='markers+lines' if visualizacion == 'lineas' else 'markers',
                         name=f'Autocorrelación {nombre}', line=dict(color=color_autocorrelacion),
                         marker=dict(color=color_autocorrelacion, size=8 if visualizacion == 'puntos' else None))
                     )
