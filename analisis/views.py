@@ -23,6 +23,7 @@ from django.template.loader import render_to_string
 import plotly.io as py
 from PIL import Image
 import io
+from statsmodels.tsa.stattools import acf, pacf
 
 @login_required(login_url="accounts/login/")
 def terminos_y_condiciones(request):
@@ -82,23 +83,6 @@ def mis_analisis(request):
 @login_required(login_url="accounts/login/")
 def resultados(request, analisis_uuid):
     analisis = get_object_or_404(Analisis, uuid=analisis_uuid, usuario=request.user)
-    '''graficas = Grafica.objects.all()
-    html=[]
-    for g in graficas:
-        fig = go.Figure(data=g.imagen_html)
-        img_bytes = py.write_image(fig, format="png")
-        image = Image.open(io.BytesIO(img_bytes))
-        if not GraficaImagen.objects.filter(imagen=image):
-            grafica_imagen = GraficaImagen.objects.create(
-                analisis=analisis,
-                fecha_creacion=datetime.now(),
-                titulo=g.titulo,
-                tipo_dato=g.tipo_dato,
-                imagen=image
-            )
-        
-    graficas_imagenes=GraficaImagen.objects.all()'''
-
     if analisis.estado != 'Terminado':
         raise Http404("No se puede acceder a los resultados hasta que el análisis esté terminado.")
 
@@ -122,6 +106,7 @@ def descargar_csv(request, analisis_uuid):
     return response
 
 
+
 @login_required(login_url="accounts/login/")
 def calcular_autocorrelacion(request, analisis_uuid):
     analisis = get_object_or_404(Analisis, uuid=analisis_uuid, usuario=request.user)
@@ -142,7 +127,7 @@ def calcular_autocorrelacion(request, analisis_uuid):
         columna for columna, datos_columna in diccionario_datos.items()
         if columna in ['precio', 'consumo', 'porcentaje'] and any(dato is not None for dato in datos_columna)
     ]
-    
+
     frecuencia_analisis = analisis.frecuencia
 
     def extraer_datos(datos_filtrados, campo):
@@ -175,6 +160,22 @@ def calcular_autocorrelacion(request, analisis_uuid):
                 autocorrelation_fig = go.Figure()
                 autocorrelaciones_por_nombre = {}
 
+                def pearson_autocorr(x, lag):
+                    x = np.array(x)
+                    n = len(x)
+                    x_mean = np.mean(x)
+                    c0 = np.sum((x - x_mean) ** 2) / n
+                    return np.array([1 if l == 0 else np.sum((x[:n-l] - x_mean) * (x[l:] - x_mean)) / (n * c0) for l in range(lag + 1)])
+
+                def spearman_autocorr(x, lag):
+                    ranks = pd.Series(x).rank().values
+                    return pearson_autocorr(ranks, lag)
+
+                def spearman_partial_autocorr(x, lag):
+                    ranks = pd.Series(x).rank().values
+                    pacf_values = pacf(ranks, nlags=lag, method='ols')
+                    return pacf_values
+
                 for nombre, valores in datos_por_nombre.items():
                     fechas = fechas_por_nombre[nombre]
                     color_datos = px.colors.qualitative.Plotly[len(datos_fig.data) % len(px.colors.qualitative.Plotly)]
@@ -187,25 +188,28 @@ def calcular_autocorrelacion(request, analisis_uuid):
                     df.set_index('Fecha', inplace=True)
 
                     if tipo == 'simple':
-                        autocorr = sm.tsa.acf(df[campo.capitalize()], nlags=lag, fft=True)
+                        if metodo == 'Pearson':
+                            autocorr = acf(df[campo.capitalize()], nlags=lag, fft=True)
+                        elif metodo == 'Spearman':
+                            autocorr = spearman_autocorr(df[campo.capitalize()].values, lag)
                     elif tipo == 'parcial':
-                        metodo_mapping = {'Pearson': 'ols', 'Spearman': 'yw'}
-                        autocorr = sm.tsa.pacf(df[campo.capitalize()], nlags=lag, method=metodo_mapping.get(metodo, 'ols'))
+                        if metodo == 'Pearson':
+                            autocorr = pacf(df[campo.capitalize()], nlags=lag, method='ols')
+                        elif metodo == 'Spearman':
+                            autocorr = spearman_partial_autocorr(df[campo.capitalize()].values, lag)
 
                     autocorrelation_fig.add_trace(go.Scatter(
-                        x=list(range(lag + 1)), y=autocorr, mode='markers+lines',
-                        name=f'Autocorrelación {nombre}', line=dict(color=color_autocorrelacion))
+                        x=list(range(lag + 1)), y=autocorr, mode='markers+lines' if visualizacion != 'puntos' else 'markers',
+                        name=f'Autocorrelación {nombre}', line=dict(color=color_autocorrelacion),
+                        marker=dict(color=color_autocorrelacion, size=8 if visualizacion == 'puntos' else None))
                     )
-                    
+
                     if nombre not in autocorrelaciones_por_nombre:
                         autocorrelaciones_por_nombre[nombre] = []
                     autocorrelaciones_por_nombre[nombre].append(autocorr)
 
                 datos_fig.update_layout(title='Datos', xaxis_title='Fecha', yaxis_title=campo.capitalize())
                 autocorrelation_fig.update_layout(title='Autocorrelación', xaxis_title='Lag', yaxis_title='Autocorrelación')
-
-                if visualizacion == 'puntos':
-                    autocorrelation_fig.update_traces(mode='markers', marker=dict(color='rgba(255, 0, 0, 0.7)', size=8))
 
                 return datos_fig, autocorrelation_fig, autocorrelaciones_por_nombre
 
@@ -223,7 +227,7 @@ def calcular_autocorrelacion(request, analisis_uuid):
                 autocorrelation_plot_div = autocorrelation_fig.to_html(full_html=False)
 
             def adjuntar_grafica(grafica):
-                if not Grafica.objects.filter(analisis=analisis, tipo_dato="Autocorrelacion",imagen_html=grafica):
+                if not Grafica.objects.filter(analisis=analisis, tipo_dato="Autocorrelacion", imagen_html=grafica):
                     Grafica.objects.create(
                         analisis=analisis,
                         fecha_creacion=datetime.now(),
@@ -253,10 +257,10 @@ def calcular_autocorrelacion(request, analisis_uuid):
                     )
                     messages.success(request, "Autocorrelación añadida correctamente")
                     for nombre_dato, autocorr in autocorrelaciones_por_nombre_tipo_dato.items():
-                        for i in range(lag):
-                            valor_autocorr = autocorr[0][i + 1]
+                        for i in range(1, lag + 1):
+                            valor_autocorr = autocorr[0][i]
                             ResulatadosAutocorrelacion.objects.create(
-                                autocorrelacion=autocorrelacion, lag=i + 1,
+                                autocorrelacion=autocorrelacion, lag=i,
                                 valor=valor_autocorr, nombre_dato=nombre_dato
                             )
                 else:
@@ -266,14 +270,14 @@ def calcular_autocorrelacion(request, analisis_uuid):
                 'autocorrelation_plot_div': autocorrelation_plot_div,
                 'analisis': analisis, 'autocorrelaciones': autocorrelaciones,
                 'analisis_uuid': analisis_uuid,
-                'graficas':graficas_autocorrelaciones
+                'graficas': graficas_autocorrelaciones
             })
 
     else:
         form = AutocorrelacionForm(frecuencia=frecuencia_analisis, mostrar_opciones=mostrar_datos, analisis_uuid=analisis_uuid)
         form.fields['mostrar_datos'].choices = [(c, c.capitalize()) for c in mostrar_datos]
 
-    return render(request, 'autocorrelacion.html', {'form': form, 'analisis': analisis, 'autocorrelaciones': autocorrelaciones, 'analisis_uuid':analisis_uuid,'graficas':graficas_autocorrelaciones})
+    return render(request, 'autocorrelacion.html', {'form': form, 'analisis': analisis, 'autocorrelaciones': autocorrelaciones, 'analisis_uuid': analisis_uuid, 'graficas': graficas_autocorrelaciones})
 
 
 @login_required(login_url="accounts/login/")
